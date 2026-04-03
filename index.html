@@ -8,17 +8,20 @@
 <h2>Escrow System</h2>
 
 <button onclick="connectWallet()">Connect Wallet</button>
-<br><br>
 
-<button onclick="deposit()" id="depositBtn">Deposit 0.01 ETH</button>
-<button onclick="confirmDelivery()" id="confirmBtn">Confirm Delivery</button>
-
+<p id="role-badge">Role: Not connected</p>
+<p id="balance">Escrow holds: — ETH</p>
 <p id="status">Status: Not Connected</p>
+<p id="txLink"></p>
 
-<!-- ✅ Ethers FIRST -->
+<br>
+<button onclick="deposit()"         id="depositBtn"  style="display:none">Deposit 0.01 ETH</button>
+<button onclick="confirmDelivery()" id="confirmBtn"  style="display:none">Confirm Delivery</button>
+<button onclick="refund()"          id="refundBtn"   style="display:none">Issue Refund (Arbiter)</button>
+
+<ul id="txLog"></ul>
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js"></script>
-
-<!-- ✅ Your script -->
 <script src="script.js"></script>
 
 </body>
