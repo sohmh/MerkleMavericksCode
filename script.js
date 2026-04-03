@@ -259,22 +259,25 @@ document.getElementById("balance").innerText =
 }
 
 async function deposit() {
-  const btn = document.getElementById("depositBtn");
-  btn.disabled = true;
-  btn.innerText = "Processing...";
   try {
-    document.getElementById("status").innerText = "Processing deposit...";
-    const tx = await contract.deposit({ value: ethers.utils.parseEther("0.01") });
-    await tx.wait();
-    document.getElementById("status").innerText = "Deposited!";
-    addLog("Deposit confirmed — <a href='https://sepolia.etherscan.io/tx/" + tx.hash + "' target='_blank'>view on Etherscan</a>");
-    document.getElementById("txLink").innerHTML = "Latest tx: <a href='https://sepolia.etherscan.io/tx/" + tx.hash + "' target='_blank'>" + tx.hash.slice(0,12) + "...</a>";
+    const network = document.getElementById("networkSelect").value;
+    document.getElementById("depositBtn").innerText =
+    network === "eth" ? "Deposit (Ethereum)" : "Deposit (Algorand)";
+    if (network === "eth") {
+      const tx = await contract.deposit({
+        value: ethers.utils.parseEther("0.01")
+      });
+
+      await tx.wait();
+      document.getElementById("status").innerText = "Deposited on Ethereum!";
+    } else {
+      alert("Algorand escrow coming soon 🚀");
+      document.getElementById("status").innerText = "Algorand mode (demo)";
+    }
+
   } catch (err) {
     console.error("Deposit error:", err);
-    document.getElementById("status").innerText = handleError(err);
-  } finally {
-    btn.disabled = false;
-    btn.innerText = "Deposit 0.01 ETH";
+    alert("Deposit failed — check console");
   }
 }
 document.getElementById("confirmBtn").disabled = false;
