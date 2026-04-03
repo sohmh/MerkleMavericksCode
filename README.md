@@ -17,7 +17,7 @@ In traditional online transactions:
 
 ---
 
-## 💡 Solution
+## Solution
 
 We are building a **blockchain-based escrow system** where:
 
