@@ -273,6 +273,26 @@ async function detectRole() {
   document.getElementById("role-badge").innerText = "Role: " + role;
 } 
 
+async function updateState() {
+  const state = await contract.currentState();
+
+  let stateText = "";
+
+  if (state == 0) stateText = "Awaiting Payment";
+  else if (state == 1) stateText = "Awaiting Delivery";
+  else if (state == 2) stateText = "Complete";
+  else if (state == 3) stateText = "Refunded";
+
+  document.getElementById("status").innerText =
+    "Status: " + stateText;
+}
+
+function logTx(message) {
+  const li = document.createElement("li");
+  li.innerText = message;
+  document.getElementById("txLog").appendChild(li);
+}
+
 async function deposit() {
   const btn = document.getElementById("depositBtn");
   btn.disabled = true;
@@ -282,6 +302,8 @@ async function deposit() {
     if (network === "eth") {
       const tx = await contract.deposit({ value: ethers.utils.parseEther("0.01") });
       await tx.wait();
+	  logTx("Deposit successful: " + tx.hash);
+
       document.getElementById("status").innerText = "Deposited on Ethereum!";
       addLog("Deposit confirmed — <a href='https://sepolia.etherscan.io/tx/" + tx.hash + "' target='_blank'>view on Etherscan</a>");
       document.getElementById("txLink").innerHTML = "Latest tx: <a href='https://sepolia.etherscan.io/tx/" + tx.hash + "' target='_blank'>" + tx.hash.slice(0,12) + "...</a>";
@@ -306,6 +328,8 @@ async function confirmDelivery() {
   try {
     const tx = await contract.confirmDelivery();
     await tx.wait();
+	logTx("Confirmed: " + tx.hash);
+
     document.getElementById("status").innerText = "Delivery Confirmed!";
     addLog("Delivery confirmed — <a href='https://sepolia.etherscan.io/tx/" + tx.hash + "' target='_blank'>view on Etherscan</a>");
     document.getElementById("txLink").innerHTML = "Latest tx: <a href='https://sepolia.etherscan.io/tx/" + tx.hash + "' target='_blank'>" + tx.hash.slice(0,12) + "...</a>";
@@ -318,19 +342,6 @@ async function confirmDelivery() {
   }
 }
 
-async function updateState() {
-  const state = await contract.currentState();
-
-  let stateText = "";
-
-  if (state == 0) stateText = "Awaiting Payment";
-  else if (state == 1) stateText = "Awaiting Delivery";
-  else if (state == 2) stateText = "Complete";
-  else if (state == 3) stateText = "Refunded";
-
-  document.getElementById("status").innerText =
-    "Status: " + stateText;
-}
 
 async function refund() {
   const btn = document.getElementById("refundBtn");
@@ -340,6 +351,8 @@ async function refund() {
     document.getElementById("status").innerText = "Processing refund...";
     const tx = await contract.refund();
     await tx.wait();
+	logTx("Refund issued to buyer");
+
     document.getElementById("status").innerText = "Refunded!";
     addLog("Refund issued — <a href='https://sepolia.etherscan.io/tx/" + tx.hash + "' target='_blank'>view on Etherscan</a>");
     document.getElementById("txLink").innerHTML = "Latest tx: <a href='https://sepolia.etherscan.io/tx/" + tx.hash + "' target='_blank'>" + tx.hash.slice(0,12) + "...</a>";
@@ -363,6 +376,14 @@ function handleError(err) {
   };
   const match = Object.entries(revertMap).find(([k]) => msg.includes(k));
   return match ? match[1] : "Transaction failed — check MetaMask.";
+}
+
+async function updateBalance() {
+  const balance = await provider.getBalance(contractAddress);
+  const eth = ethers.utils.formatEther(balance);
+
+  document.getElementById("balance").innerText =
+    "Escrow holds: " + eth + " ETH";
 }
 
 async function checkNetwork() {
