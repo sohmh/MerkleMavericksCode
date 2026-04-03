@@ -1,8 +1,12 @@
+/* ═══════════════════════════════════════════════════════════════
+   EscrowChain — script.js
+   Contract interaction logic. Landing page logic lives in index.html.
+   Do NOT remove or rename: connectWallet, deposit, confirmDelivery, refund
+═══════════════════════════════════════════════════════════════ */
+
 let provider;
 let signer;
 let contract;
-
-
 
 const contractAddress = "0x47d616E2C6987C91871CC618b69523E6d9dca041";
 const abi = [
@@ -193,215 +197,226 @@ const abi = [
 	}
 ];
 
-async function connectWallet(){
-  console.log("Connect clicked");
-  console.log("CONNECT FUNCTION CALLED");
+const STATE_LABELS = ["Awaiting Payment", "Awaiting Delivery", "Complete", "Refunded"];
 
-  if (window.ethereum) {
-    await ethereum.request({ method: "eth_requestAccounts" });
-
-    console.log("Accounts requested");
-
-    provider = new ethers.providers.Web3Provider(window.ethereum);
-    signer = provider.getSigner();
-    if (!await checkNetwork()) return;
-    contract = new ethers.Contract(contractAddress, abi, signer);
-
-    const accounts = await provider.listAccounts();
-    console.log("Accounts:", accounts);
-
-    document.getElementById("status").innerText =
-    "Wallet Connected: " + accounts[0];
-    // Role detection
-const BUYER   = "0x3A59180d32A359B3f7850a4a7A78735D582fb05A".toLowerCase();
-const SELLER  = "0xbC85608273Af085fef7352F520f49ea55BB9068E".toLowerCase();
-const ARBITER = "0x308e62B49fFcfA564942813Ed2629eCd5F0dE0bB".toLowerCase();
-
-const addr = accounts[0].toLowerCase();
-let role = "Observer";
-if (addr === BUYER)   role = "Buyer";
-if (addr === SELLER)  role = "Seller";
-if (addr === ARBITER) role = "Arbiter";
-
-document.getElementById("role-badge").innerText = "Connected as: " + role;
-
-// Show/hide buttons based on role
-document.getElementById("depositBtn").style.display  = (role === "Buyer")   ? "inline" : "none";
-document.getElementById("confirmBtn").style.display  = (role === "Buyer")   ? "inline" : "none";
-document.getElementById("refundBtn").style.display   = (role === "Arbiter") ? "inline" : "none";
-
-// Live balance
-const bal = await contract.getBalance();
-document.getElementById("balance").innerText =
-  "Escrow holds: " + ethers.utils.formatEther(bal) + " ETH";
-  // ← PASTE EVENT LISTENERS HERE
- 
-      contract.on("StateChanged", async (newState) => {
-      const labels = ["Awaiting Payment", "Awaiting Delivery", "Complete", "Refunded"];
-      document.getElementById("status").innerText = "State: " + labels[newState];
-      const bal = await contract.getBalance();
-      document.getElementById("balance").innerText =
-        "Escrow holds: " + ethers.utils.formatEther(bal) + " ETH";
-    });
-
-    contract.on("Deposited", (buyer, amount) => {
-      addLog("Deposit — " + ethers.utils.formatEther(amount) + " ETH locked in escrow");
-    });
-
-    contract.on("DeliveryConfirmed", (buyer, seller) => {
-      addLog("Delivery confirmed — ETH released to seller");
-    });
-
-    contract.on("Refunded", (buyer, amount) => {
-      addLog("Refund issued — " + ethers.utils.formatEther(amount) + " ETH returned to buyer");
-    });
-
-    document.getElementById("depositBtn").disabled = false;
-  }
-}
-async function detectRole() {
-  const address = await signer.getAddress();
-
-  const buyer = await contract.buyer();
-  const seller = await contract.seller();
-  const arbiter = await contract.arbiter();
-
-  let role = "Viewer";
-
-  if (address.toLowerCase() === buyer.toLowerCase()) role = "Buyer";
-  else if (address.toLowerCase() === seller.toLowerCase()) role = "Seller";
-  else if (address.toLowerCase() === arbiter.toLowerCase()) role = "Arbiter";
-
-  document.getElementById("role-badge").innerText = "Role: " + role;
-}
-
-async function updateState() {
-  const state = await contract.currentState();
-
-  let stateText = "";
-
-  if (state == 0) stateText = "Awaiting Payment";
-  else if (state == 1) stateText = "Awaiting Delivery";
-  else if (state == 2) stateText = "Complete";
-  else if (state == 3) stateText = "Refunded";
-
-  document.getElementById("status").innerText =
-    "Status: " + stateText;
-}
-
-function logTx(message) {
-  const li = document.createElement("li");
-  li.innerText = message;
-  document.getElementById("txLog").appendChild(li);
-}
-
-async function deposit() {
-  const btn = document.getElementById("depositBtn");
-  btn.disabled = true;
-  const network = document.getElementById("networkSelect").value;
-  btn.innerText = network === "eth" ? "Processing..." : "Deposit (Algorand)";
-  try {
-    if (network === "eth") {
-      const tx = await contract.deposit({ value: ethers.utils.parseEther("0.01") });
-      await tx.wait();
-	  logTx("Deposit successful: " + tx.hash);
-
-      document.getElementById("status").innerText = "Deposited on Ethereum!";
-      addLog("Deposit confirmed — <a href='https://sepolia.etherscan.io/tx/" + tx.hash + "' target='_blank'>view on Etherscan</a>");
-      document.getElementById("txLink").innerHTML = "Latest tx: <a href='https://sepolia.etherscan.io/tx/" + tx.hash + "' target='_blank'>" + tx.hash.slice(0,12) + "...</a>";
-    } else {
-      alert("Algorand escrow coming soon :rocket:");
-      document.getElementById("status").innerText = "Algorand mode (demo)";
-    }
-  } catch (err) {
-    console.error("Deposit error:", err);
-    document.getElementById("status").innerText = handleError(err);
-  } finally {
-    btn.disabled = false;
-    btn.innerText = "Deposit 0.01 ETH";
-  }
-}
-
-
-
-async function confirmDelivery() {
-  const btn = document.getElementById("confirmBtn");
-  btn.disabled = true;
-  btn.innerText = "Processing...";
-  try {
-    const tx = await contract.confirmDelivery();
-    await tx.wait();
-	logTx("Confirmed: " + tx.hash);
-
-    document.getElementById("status").innerText = "Delivery Confirmed!";
-    addLog("Delivery confirmed — <a href='https://sepolia.etherscan.io/tx/" + tx.hash + "' target='_blank'>view on Etherscan</a>");
-    document.getElementById("txLink").innerHTML = "Latest tx: <a href='https://sepolia.etherscan.io/tx/" + tx.hash + "' target='_blank'>" + tx.hash.slice(0,12) + "...</a>";
-  } catch (err) {
-    console.error("Confirm error:", err);
-    document.getElementById("status").innerText = handleError(err);
-  } finally {
-    btn.disabled = false;
-    btn.innerText = "Confirm Delivery";
-  }
-}
-
-
-
-async function refund() {
-  const btn = document.getElementById("refundBtn");
-  btn.disabled = true;
-  btn.innerText = "Processing...";
-  try {
-    document.getElementById("status").innerText = "Processing refund...";
-    const tx = await contract.refund();
-    await tx.wait();
-	logTx("Refund issued to buyer");
-
-    document.getElementById("status").innerText = "Refunded!";
-    addLog("Refund issued — <a href='https://sepolia.etherscan.io/tx/" + tx.hash + "' target='_blank'>view on Etherscan</a>");
-    document.getElementById("txLink").innerHTML = "Latest tx: <a href='https://sepolia.etherscan.io/tx/" + tx.hash + "' target='_blank'>" + tx.hash.slice(0,12) + "...</a>";
-  } catch (err) {
-    console.error("Refund error:", err);
-    document.getElementById("status").innerText = handleError(err);
-  } finally {
-    btn.disabled = false;
-    btn.innerText = "Issue Refund (Arbiter)";
-  }
-}
-
-function handleError(err) {
-  const msg = err?.reason || err?.message || "";
-  const revertMap = {
-    "Only buyer allowed":   "Switch to the Buyer account in MetaMask.",
-    "Only arbiter allowed": "Switch to the Arbiter account in MetaMask.",
-    "Already paid":         "Funds are already held in escrow.",
-    "Not ready":            "Awaiting deposit before confirming delivery.",
-    "Cannot refund":        "No funds in escrow to refund."
-  };
-  const match = Object.entries(revertMap).find(([k]) => msg.includes(k));
-  return match ? match[1] : "Transaction failed — check MetaMask.";
-}
-
-async function updateBalance() {
-  const balance = await provider.getBalance(contractAddress);
-  const eth = ethers.utils.formatEther(balance);
-
-  document.getElementById("balance").innerText =
-    "Escrow holds: " + eth + " ETH";
-}
-
+/* ─── Network guard ─── */
 async function checkNetwork() {
-  const network = await provider.getNetwork();
-  if (network.chainId !== 11155111) {
-    document.getElementById("status").innerText =
-      "Wrong network — please switch MetaMask to Sepolia.";
-    return false;
-  }
-  return true;
+  const network = await provider.getNetwork();
+  if (network.chainId !== 11155111) {
+    document.getElementById("status").innerText = "Wrong network — please switch MetaMask to Sepolia.";
+    return false;
+  }
+  return true;
 }
 
+/* ─── Track / lifecycle UI ─── */
+function updateTrack(state) {
+  [0, 1, 2, 3].forEach(i => {
+    const s  = document.getElementById('s'  + i);
+    const sl = document.getElementById('sl' + i);
+    s.className  = 'step' + (i < state ? ' done' : i === state ? ' active' : '');
+    if (sl) sl.className = 'step-line' + (i < state ? ' done' : '');
+  });
+}
+
+/* ─── TX log ─── */
 function addLog(message) {
-  const log = document.getElementById("txLog");
-  const time = new Date().toLocaleTimeString();
-  log.innerHTML = `<li>${time} — ${message}</li>` + log.innerHTML;
+  const log = document.getElementById("txLog");
+  const empty = log.querySelector('.log-empty');
+  if (empty) empty.remove();
+  const time = new Date().toLocaleTimeString();
+  log.insertAdjacentHTML('afterbegin',
+    `<div class="log-entry"><span class="log-time">${time}</span><span class="log-msg">${message}</span></div>`
+  );
+}
+
+/* ─── Legacy logTx (kept for compatibility) ─── */
+function logTx(message) {
+  addLog(message);
+}
+
+/* ─── Error handler ─── */
+function handleError(err) {
+  const msg = err?.reason || err?.message || "";
+  const revertMap = {
+    "Only buyer allowed":   "Switch to the Buyer account in MetaMask.",
+    "Only arbiter allowed": "Switch to the Arbiter account in MetaMask.",
+    "Already paid":         "Funds are already held in escrow.",
+    "Not ready":            "Awaiting deposit before confirming delivery.",
+    "Cannot refund":        "No funds in escrow to refund."
+  };
+  const match = Object.entries(revertMap).find(([k]) => msg.includes(k));
+  return match ? match[1] : "Transaction failed — check MetaMask.";
+}
+
+/* ─── Load live contract data ─── */
+async function loadContractData() {
+  try {
+    const bal   = await contract.getBalance();
+    const state = await contract.getState();
+    document.getElementById("balance").innerText =
+      parseFloat(ethers.utils.formatEther(bal)).toFixed(4) + " ETH";
+    document.getElementById("status").innerText = STATE_LABELS[state];
+    updateTrack(state);
+  } catch (e) {
+    console.warn("loadContractData error:", e);
+  }
+}
+
+/* ─── Attach contract event listeners ─── */
+function attachContractEvents() {
+  contract.on("StateChanged", async (newState) => {
+    document.getElementById("status").innerText = STATE_LABELS[newState];
+    updateTrack(newState);
+    const bal = await contract.getBalance();
+    document.getElementById("balance").innerText =
+      parseFloat(ethers.utils.formatEther(bal)).toFixed(4) + " ETH";
+  });
+
+  contract.on("Deposited", (buyer, amount) => {
+    addLog("Deposit — " + ethers.utils.formatEther(amount) + " ETH locked in escrow");
+  });
+
+  contract.on("DeliveryConfirmed", (buyer, seller) => {
+    addLog("Delivery confirmed — ETH released to seller");
+  });
+
+  contract.on("Refunded", (buyer, amount) => {
+    addLog("Refund issued — " + ethers.utils.formatEther(amount) + " ETH returned to buyer");
+  });
+}
+
+/* ─── Connect Wallet  (called from landing page step 2) ─── */
+async function connectWallet() {
+  const statusEl = document.getElementById("connectStatus");
+  const btn      = document.getElementById("btnMetaMask");
+
+  if (!window.ethereum) {
+    if (statusEl) { statusEl.className = "connect-status error"; statusEl.textContent = "MetaMask not found. Please install it first."; }
+    return;
+  }
+
+  if (btn) { btn.disabled = true; btn.textContent = "Connecting…"; }
+  if (statusEl) { statusEl.className = "connect-status"; statusEl.textContent = "Requesting accounts…"; }
+
+  try {
+    await ethereum.request({ method: "eth_requestAccounts" });
+
+    provider = new ethers.providers.Web3Provider(window.ethereum);
+    signer   = provider.getSigner();
+
+    if (!await checkNetwork()) {
+      if (btn) { btn.disabled = false; btn.innerHTML = "<span>🦊</span> Connect with MetaMask"; }
+      if (statusEl) { statusEl.className = "connect-status error"; statusEl.textContent = "Wrong network — switch to Sepolia in MetaMask."; }
+      return;
+    }
+
+    contract = new ethers.Contract(contractAddress, abi, signer);
+
+    const accounts = await provider.listAccounts();
+    const walletAddress = accounts[0];
+
+    // Persist session
+    localStorage.setItem("escrow_role",   selectedRole);
+    localStorage.setItem("escrow_wallet", walletAddress);
+
+    if (statusEl) { statusEl.className = "connect-status success"; statusEl.textContent = "Wallet connected! Loading app…"; }
+
+    // Small delay so user sees success state
+    await new Promise(r => setTimeout(r, 600));
+
+    // Transition to main app
+    showApp(walletAddress);
+
+    // Load live data
+    await loadContractData();
+    attachContractEvents();
+
+  } catch (err) {
+    console.error("connectWallet error:", err);
+    const msg = err?.message || "Connection failed";
+    if (statusEl) { statusEl.className = "connect-status error"; statusEl.textContent = msg.includes("rejected") ? "Connection rejected by user." : "Error: " + msg; }
+  } finally {
+    if (btn) { btn.disabled = false; btn.innerHTML = "<span>🦊</span> Connect with MetaMask"; }
+  }
+}
+
+/* ─── Deposit ─── */
+async function deposit() {
+  const btn = document.getElementById("depositBtn");
+  btn.disabled = true;
+  const network = document.getElementById("networkSelect").value;
+  btn.innerText = network === "eth" ? "Processing…" : "Deposit (Algorand)";
+  try {
+    if (network === "eth") {
+      const tx = await contract.deposit({ value: ethers.utils.parseEther("0.01") });
+      await tx.wait();
+      logTx("Deposit successful: " + tx.hash);
+      document.getElementById("status").innerText = "Deposited on Ethereum!";
+      addLog("Deposit confirmed — <a href='https://sepolia.etherscan.io/tx/" + tx.hash + "' target='_blank'>view on Etherscan</a>");
+      document.getElementById("txLink").innerHTML =
+        "Latest tx: <a href='https://sepolia.etherscan.io/tx/" + tx.hash + "' target='_blank'>" + tx.hash.slice(0, 12) + "...</a>";
+    } else {
+      alert("Algorand escrow coming soon 🚀");
+      document.getElementById("status").innerText = "Algorand mode (demo)";
+    }
+  } catch (err) {
+    console.error("Deposit error:", err);
+    document.getElementById("status").innerText = handleError(err);
+  } finally {
+    btn.disabled = false;
+    btn.innerText = "Deposit 0.01 ETH";
+  }
+}
+
+/* ─── Confirm Delivery ─── */
+async function confirmDelivery() {
+  const btn = document.getElementById("confirmBtn");
+  btn.disabled = true;
+  btn.innerText = "Processing…";
+  try {
+    const tx = await contract.confirmDelivery();
+    await tx.wait();
+    logTx("Confirmed: " + tx.hash);
+    document.getElementById("status").innerText = "Delivery Confirmed!";
+    addLog("Delivery confirmed — <a href='https://sepolia.etherscan.io/tx/" + tx.hash + "' target='_blank'>view on Etherscan</a>");
+    document.getElementById("txLink").innerHTML =
+      "Latest tx: <a href='https://sepolia.etherscan.io/tx/" + tx.hash + "' target='_blank'>" + tx.hash.slice(0, 12) + "...</a>";
+  } catch (err) {
+    console.error("Confirm error:", err);
+    document.getElementById("status").innerText = handleError(err);
+  } finally {
+    btn.disabled = false;
+    btn.innerText = "Confirm Delivery";
+  }
+}
+
+/* ─── Refund ─── */
+async function refund() {
+  const btn = document.getElementById("refundBtn");
+  btn.disabled = true;
+  btn.innerText = "Processing…";
+  try {
+    document.getElementById("status").innerText = "Processing refund…";
+    const tx = await contract.refund();
+    await tx.wait();
+    logTx("Refund issued to buyer");
+    document.getElementById("status").innerText = "Refunded!";
+    addLog("Refund issued — <a href='https://sepolia.etherscan.io/tx/" + tx.hash + "' target='_blank'>view on Etherscan</a>");
+    document.getElementById("txLink").innerHTML =
+      "Latest tx: <a href='https://sepolia.etherscan.io/tx/" + tx.hash + "' target='_blank'>" + tx.hash.slice(0, 12) + "...</a>";
+  } catch (err) {
+    console.error("Refund error:", err);
+    document.getElementById("status").innerText = handleError(err);
+  } finally {
+    btn.disabled = false;
+    btn.innerText = "Issue Refund";
+  }
+}
+
+/* ─── Balance helper ─── */
+async function updateBalance() {
+  const balance = await provider.getBalance(contractAddress);
+  const eth = ethers.utils.formatEther(balance);
+  document.getElementById("balance").innerText = parseFloat(eth).toFixed(4) + " ETH";
 }

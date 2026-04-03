@@ -1,7 +1,13 @@
-
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>EscrowChain — Blockchain Escrow dApp</title>
+  <meta name="description" content="Decentralized escrow on Ethereum Sepolia. Select your role, connect MetaMask, and interact with the smart contract securely." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Sora:wght@300;400;500;600&display=swap" rel="stylesheet" />
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Sora:wght@300;400;500;600&display=swap');
-
   * { box-sizing: border-box; margin: 0; padding: 0; }
 
   :root {
@@ -20,7 +26,214 @@
     --sans: 'Sora', sans-serif;
   }
 
-  body { background: var(--bg); font-family: var(--sans); color: var(--text); min-height: 100vh; }
+  body { background: var(--bg); font-family: var(--sans); color: var(--text); min-height: 100vh; overflow-x: hidden; }
+
+  /* ═══════════════════════════════════════════════
+     LANDING PAGE
+  ═══════════════════════════════════════════════ */
+  #landing {
+    position: fixed; inset: 0; z-index: 100;
+    display: flex; align-items: center; justify-content: center;
+    background: var(--bg);
+    transition: opacity 0.5s ease, transform 0.5s ease;
+  }
+  #landing.hide {
+    opacity: 0; pointer-events: none; transform: scale(0.97);
+  }
+
+  /* animated background grid */
+  #landing::before {
+    content: '';
+    position: absolute; inset: 0;
+    background-image:
+      linear-gradient(rgba(74,222,128,0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(74,222,128,0.04) 1px, transparent 1px);
+    background-size: 48px 48px;
+    animation: gridScroll 20s linear infinite;
+    pointer-events: none;
+  }
+  @keyframes gridScroll {
+    from { background-position: 0 0; }
+    to   { background-position: 48px 48px; }
+  }
+
+  /* radial glow */
+  #landing::after {
+    content: '';
+    position: absolute; inset: 0;
+    background: radial-gradient(ellipse 70% 50% at 50% 40%, rgba(74,222,128,0.07) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .landing-card {
+    position: relative; z-index: 1;
+    background: var(--surface);
+    border: 1px solid var(--border-accent);
+    border-radius: 20px;
+    padding: 40px 44px;
+    width: 100%; max-width: 420px;
+    box-shadow: 0 0 60px rgba(0,0,0,0.5), 0 0 120px rgba(74,222,128,0.05);
+    animation: cardIn 0.6s cubic-bezier(0.22,1,0.36,1) both;
+  }
+  @keyframes cardIn {
+    from { opacity: 0; transform: translateY(24px) scale(0.96); }
+    to   { opacity: 1; transform: translateY(0) scale(1); }
+  }
+
+  .landing-logo {
+    display: flex; align-items: center; gap: 10px;
+    margin-bottom: 28px;
+  }
+  .landing-logo-mark {
+    width: 36px; height: 36px; border-radius: 10px;
+    background: conic-gradient(from 130deg, #4ade80, #818cf8, #fb923c, #4ade80);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 15px; font-weight: 700; color: #fff;
+    box-shadow: 0 0 16px rgba(74,222,128,0.3);
+  }
+  .landing-logo-text { font-size: 18px; font-weight: 600; letter-spacing: -0.02em; }
+
+  .landing-title {
+    font-size: 22px; font-weight: 600; letter-spacing: -0.02em;
+    margin-bottom: 6px;
+  }
+  .landing-sub {
+    font-size: 13px; color: var(--muted); line-height: 1.55;
+    margin-bottom: 28px;
+  }
+
+  /* step indicator */
+  .steps-indicator {
+    display: flex; gap: 6px; margin-bottom: 28px;
+  }
+  .step-pip {
+    height: 3px; border-radius: 2px; flex: 1;
+    background: var(--surface2);
+    transition: background 0.3s;
+  }
+  .step-pip.active { background: var(--accent); }
+  .step-pip.done   { background: rgba(74,222,128,0.4); }
+
+  /* step panels */
+  .step-panel { display: none; }
+  .step-panel.active { display: block; animation: fadeSlide 0.3s ease; }
+  @keyframes fadeSlide {
+    from { opacity: 0; transform: translateX(10px); }
+    to   { opacity: 1; transform: translateX(0); }
+  }
+
+  .step-label-title {
+    font-size: 11px; letter-spacing: .08em; text-transform: uppercase;
+    color: var(--muted); margin-bottom: 14px;
+  }
+
+  /* Role buttons */
+  .role-grid { display: flex; flex-direction: column; gap: 10px; }
+  .role-btn {
+    display: flex; align-items: center; gap: 14px;
+    background: var(--surface2); border: 1.5px solid var(--border-accent);
+    border-radius: 12px; padding: 14px 16px;
+    cursor: pointer; text-align: left;
+    transition: all 0.2s ease; color: var(--text);
+    font-family: var(--sans);
+    position: relative; overflow: hidden;
+  }
+  .role-btn:hover { border-color: rgba(255,255,255,0.25); background: #1f2332; transform: translateY(-1px); }
+  .role-btn.selected {
+    border-color: var(--accent);
+    background: rgba(74,222,128,0.07);
+    box-shadow: 0 0 0 1px rgba(74,222,128,0.15);
+  }
+  .role-btn.selected.seller  { border-color: var(--accent2); background: rgba(129,140,248,0.07); box-shadow: 0 0 0 1px rgba(129,140,248,0.15); }
+  .role-btn.selected.arbiter { border-color: var(--accent3); background: rgba(251,146,60,0.07);  box-shadow: 0 0 0 1px rgba(251,146,60,0.15); }
+
+  .role-icon {
+    width: 40px; height: 40px; border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px; flex-shrink: 0;
+    background: var(--surface);
+  }
+  .role-btn.selected.buyer   .role-icon { background: rgba(74,222,128,0.12); }
+  .role-btn.selected.seller  .role-icon { background: rgba(129,140,248,0.12); }
+  .role-btn.selected.arbiter .role-icon { background: rgba(251,146,60,0.12); }
+
+  .role-text-name { font-size: 14px; font-weight: 500; }
+  .role-text-desc { font-size: 11px; color: var(--muted); margin-top: 2px; }
+
+  .role-check {
+    margin-left: auto; width: 18px; height: 18px; border-radius: 50%;
+    border: 1.5px solid var(--border-accent);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 10px; color: transparent;
+    transition: all 0.2s;
+    flex-shrink: 0;
+  }
+  .role-btn.selected .role-check {
+    background: var(--accent); border-color: var(--accent); color: #0d1a10;
+  }
+  .role-btn.selected.seller  .role-check { background: var(--accent2); border-color: var(--accent2); color: #fff; }
+  .role-btn.selected.arbiter .role-check { background: var(--accent3); border-color: var(--accent3); color: #fff; }
+
+  /* Connect panel */
+  .connect-info-box {
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 10px; padding: 14px 16px;
+    display: flex; align-items: center; gap: 12px;
+    margin-bottom: 16px;
+  }
+  .connect-role-chip {
+    font-family: var(--mono); font-size: 12px; font-weight: 500;
+    padding: 4px 10px; border-radius: 6px;
+  }
+  .connect-role-chip.buyer   { background: rgba(74,222,128,0.12); color: var(--accent); border: 1px solid rgba(74,222,128,0.2); }
+  .connect-role-chip.seller  { background: rgba(129,140,248,0.12); color: var(--accent2); border: 1px solid rgba(129,140,248,0.2); }
+  .connect-role-chip.arbiter { background: rgba(251,146,60,0.12); color: var(--accent3); border: 1px solid rgba(251,146,60,0.2); }
+
+  .connect-info-text { font-size: 12px; color: var(--muted); line-height: 1.5; }
+
+  /* Primary CTA buttons */
+  .btn-primary {
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    width: 100%; padding: 12px 20px;
+    border: none; border-radius: 10px; cursor: pointer;
+    font-family: var(--sans); font-size: 14px; font-weight: 500;
+    transition: all 0.2s ease;
+  }
+  .btn-next {
+    background: var(--accent); color: #0d1a10;
+    margin-top: 20px;
+  }
+  .btn-next:hover { opacity: 0.88; transform: translateY(-1px); box-shadow: 0 4px 20px rgba(74,222,128,0.25); }
+  .btn-next:disabled { opacity: 0.4; cursor: not-allowed; transform: none; box-shadow: none; }
+
+  .btn-metamask {
+    background: linear-gradient(135deg, #ff7b00, #ff9d34);
+    color: #fff;
+  }
+  .btn-metamask:hover { opacity: 0.9; transform: translateY(-1px); box-shadow: 0 4px 20px rgba(255,123,0,0.3); }
+  .btn-metamask:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+
+  .btn-back {
+    background: transparent; border: 1px solid var(--border-accent);
+    color: var(--muted); margin-top: 10px;
+  }
+  .btn-back:hover { color: var(--text); border-color: rgba(255,255,255,0.2); }
+
+  .connect-status {
+    font-size: 12px; text-align: center; color: var(--muted);
+    margin-top: 12px; min-height: 18px;
+  }
+  .connect-status.error { color: var(--danger); }
+  .connect-status.success { color: var(--accent); }
+
+  /* ═══════════════════════════════════════════════
+     MAIN APP  (existing shell, untouched layout)
+  ═══════════════════════════════════════════════ */
+  #app {
+    opacity: 0; pointer-events: none;
+    transition: opacity 0.5s ease 0.1s;
+  }
+  #app.visible { opacity: 1; pointer-events: auto; }
 
   .shell {
     display: grid;
@@ -34,18 +247,13 @@
   /* TOP BAR */
   .topbar {
     grid-column: 1 / -1;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
+    display: flex; align-items: center; justify-content: space-between;
     padding: 0 24px;
     border-bottom: 1px solid var(--border);
     background: var(--surface);
   }
 
-  .logo {
-    display: flex; align-items: center; gap: 10px;
-    font-size: 15px; font-weight: 600; letter-spacing: -0.01em;
-  }
+  .logo { display: flex; align-items: center; gap: 10px; font-size: 15px; font-weight: 600; letter-spacing: -0.01em; }
   .logo-mark {
     width: 28px; height: 28px; border-radius: 7px;
     background: conic-gradient(from 130deg, #4ade80, #818cf8, #fb923c, #4ade80);
@@ -73,12 +281,19 @@
   }
   .btn-connect:hover { opacity: .85; }
 
+  .btn-disconnect {
+    font-family: var(--sans); font-size: 12px; font-weight: 500;
+    background: transparent; color: var(--muted);
+    border: 1px solid var(--border-accent); border-radius: 8px;
+    padding: 6px 12px; cursor: pointer;
+    transition: all .15s;
+  }
+  .btn-disconnect:hover { color: var(--danger); border-color: rgba(248,113,113,0.4); }
+
   /* SIDEBAR */
   .sidebar {
-    border-right: 1px solid var(--border);
-    background: var(--surface);
-    padding: 24px 16px;
-    display: flex; flex-direction: column; gap: 6px;
+    border-right: 1px solid var(--border); background: var(--surface);
+    padding: 24px 16px; display: flex; flex-direction: column; gap: 6px;
   }
 
   .sidebar-label {
@@ -115,7 +330,11 @@
     padding: 4px 10px; border-radius: 6px;
     background: rgba(129,140,248,0.12); color: var(--accent2);
     border: 1px solid rgba(129,140,248,0.2);
+    word-break: break-all;
   }
+  .role-badge.buyer   { background: rgba(74,222,128,0.12); color: var(--accent); border-color: rgba(74,222,128,0.2); }
+  .role-badge.seller  { background: rgba(129,140,248,0.12); color: var(--accent2); border-color: rgba(129,140,248,0.2); }
+  .role-badge.arbiter { background: rgba(251,146,60,0.12); color: var(--accent3); border-color: rgba(251,146,60,0.2); }
 
   /* MAIN */
   .main { padding: 28px; overflow-y: auto; display: flex; flex-direction: column; gap: 20px; }
@@ -138,14 +357,11 @@
     border-radius: 12px; padding: 20px;
   }
   .track-header { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; margin-bottom: 16px; }
-  .track-steps { display: flex; align-items: center; gap: 0; }
-  .step {
-    display: flex; flex-direction: column; align-items: center; gap: 6px; flex: 1;
-  }
+  .track-steps { display: flex; align-items: center; }
+  .step { display: flex; flex-direction: column; align-items: center; gap: 6px; flex: 1; }
   .step-dot {
     width: 32px; height: 32px; border-radius: 50%;
-    border: 1.5px solid var(--border-accent);
-    background: var(--surface2);
+    border: 1.5px solid var(--border-accent); background: var(--surface2);
     display: flex; align-items: center; justify-content: center;
     font-size: 12px; font-weight: 500; color: var(--muted);
     transition: all .3s;
@@ -171,8 +387,8 @@
     cursor: pointer; width: 100%; text-align: center;
     transition: all .15s; margin-top: auto;
   }
-  .btn-green { background: rgba(74,222,128,0.12); color: var(--accent); border: 1px solid rgba(74,222,128,0.25); }
-  .btn-green:hover { background: rgba(74,222,128,0.2); }
+  .btn-green  { background: rgba(74,222,128,0.12); color: var(--accent); border: 1px solid rgba(74,222,128,0.25); }
+  .btn-green:hover  { background: rgba(74,222,128,0.2); }
   .btn-purple { background: rgba(129,140,248,0.12); color: var(--accent2); border: 1px solid rgba(129,140,248,0.2); }
   .btn-purple:hover { background: rgba(129,140,248,0.2); }
   .btn-orange { background: rgba(251,146,60,0.12); color: var(--accent3); border: 1px solid rgba(251,146,60,0.2); }
@@ -180,14 +396,8 @@
   .action-btn:disabled { opacity: .35; cursor: not-allowed; }
 
   /* TX LOG */
-  .log-panel {
-    background: var(--surface); border: 1px solid var(--border);
-    border-radius: 12px; padding: 18px;
-  }
-  .log-header {
-    display: flex; align-items: center; justify-content: space-between;
-    margin-bottom: 14px;
-  }
+  .log-panel { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 18px; }
+  .log-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
   .log-title { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; }
   .log-list { display: flex; flex-direction: column; gap: 6px; min-height: 40px; }
   .log-entry {
@@ -200,7 +410,7 @@
   .log-msg a { color: var(--accent2); }
   .log-empty { color: var(--muted); font-size: 12px; font-style: italic; }
 
-  /* NETWORK BADGE in sidebar */
+  /* NETWORK SELECT in sidebar */
   .net-select-wrap {
     display: flex; align-items: center; gap: 8px;
     background: var(--surface2); border: 1px solid var(--border);
@@ -214,7 +424,95 @@
 
   @keyframes fadeIn { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: translateY(0); } }
 </style>
+</head>
+<body>
 
+<!-- ═══════════════════════════════════════════════
+     LANDING PAGE
+═══════════════════════════════════════════════ -->
+<div id="landing">
+  <div class="landing-card">
+
+    <!-- Logo -->
+    <div class="landing-logo">
+      <div class="landing-logo-mark">E</div>
+      <span class="landing-logo-text">EscrowChain</span>
+    </div>
+
+    <!-- Step progress pips -->
+    <div class="steps-indicator">
+      <div class="step-pip active" id="pip0"></div>
+      <div class="step-pip" id="pip1"></div>
+    </div>
+
+    <!-- STEP 1: Role Selection -->
+    <div class="step-panel active" id="stepRole">
+      <div class="step-label-title">Step 1 of 2 — Select your role</div>
+      <h1 class="landing-title">Who are you?</h1>
+      <p class="landing-sub">Choose your role in this escrow agreement. This controls which actions you can take.</p>
+
+      <div class="role-grid">
+        <button class="role-btn buyer" id="roleBtn-buyer" onclick="selectRole('buyer')" aria-pressed="false">
+          <div class="role-icon">🛒</div>
+          <div>
+            <div class="role-text-name">Buyer</div>
+            <div class="role-text-desc">Deposit ETH &amp; confirm delivery</div>
+          </div>
+          <div class="role-check">✓</div>
+        </button>
+
+        <button class="role-btn seller" id="roleBtn-seller" onclick="selectRole('seller')" aria-pressed="false">
+          <div class="role-icon">📦</div>
+          <div>
+            <div class="role-text-name">Seller</div>
+            <div class="role-text-desc">Receive payment on delivery</div>
+          </div>
+          <div class="role-check">✓</div>
+        </button>
+
+        <button class="role-btn arbiter" id="roleBtn-arbiter" onclick="selectRole('arbiter')" aria-pressed="false">
+          <div class="role-icon">⚖️</div>
+          <div>
+            <div class="role-text-name">Arbiter</div>
+            <div class="role-text-desc">Resolve disputes &amp; issue refunds</div>
+          </div>
+          <div class="role-check">✓</div>
+        </button>
+      </div>
+
+      <button class="btn-primary btn-next" id="btnToConnect" onclick="goToConnect()" disabled>
+        Continue →
+      </button>
+    </div>
+
+    <!-- STEP 2: Connect Wallet -->
+    <div class="step-panel" id="stepConnect">
+      <div class="step-label-title">Step 2 of 2 — Connect wallet</div>
+      <h2 class="landing-title">Connect MetaMask</h2>
+      <p class="landing-sub">Authorize your wallet to interact with the escrow smart contract on Sepolia.</p>
+
+      <div class="connect-info-box">
+        <div class="connect-role-chip buyer" id="connectRoleChip">Buyer</div>
+        <div class="connect-info-text">You'll enter the app as <strong id="connectRoleName">Buyer</strong>. Make sure the correct account is active in MetaMask.</div>
+      </div>
+
+      <button class="btn-primary btn-metamask" id="btnMetaMask" onclick="connectWallet()">
+        <span>🦊</span> Connect with MetaMask
+      </button>
+      <div class="connect-status" id="connectStatus"></div>
+
+      <button class="btn-primary btn-back" onclick="goBack()">
+        ← Back
+      </button>
+    </div>
+
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     MAIN APP
+═══════════════════════════════════════════════ -->
+<div id="app">
 <div class="shell">
 
   <!-- TOP BAR -->
@@ -228,7 +526,8 @@
         <div class="net-dot"></div>
         Sepolia Testnet
       </div>
-      <button class="btn-connect" id="connectBtn" onclick="connectWallet()">Connect Wallet</button>
+      <div id="walletDisplay" style="font-family:var(--mono);font-size:12px;color:var(--muted);"></div>
+      <button class="btn-disconnect" id="disconnectBtn" onclick="disconnectWallet()">⏏ Switch Role</button>
     </div>
   </header>
 
@@ -340,137 +639,130 @@
 
   </main>
 </div>
+</div>
 
+<!-- ═══════════════════════════════════════════════
+     SCRIPTS
+═══════════════════════════════════════════════ -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js"></script>
+<script src="script.js"></script>
 <script>
-let provider, signer, contract;
-const contractAddress = "0x47d616E2C6987C91871CC618b69523E6d9dca041";
-const abi = [{"inputs":[{"internalType":"address","name":"_seller","type":"address"},{"internalType":"address","name":"_arbiter","type":"address"}],"stateMutability":"nonpayable","type":"constructor"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"buyer","type":"address"},{"indexed":true,"internalType":"address","name":"seller","type":"address"}],"name":"DeliveryConfirmed","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"buyer","type":"address"},{"indexed":false,"internalType":"uint256","name":"amount","type":"uint256"}],"name":"Deposited","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"buyer","type":"address"},{"indexed":false,"internalType":"uint256","name":"amount","type":"uint256"}],"name":"Refunded","type":"event"},{"anonymous":false,"inputs":[{"indexed":false,"internalType":"enum Escrow.State","name":"newState","type":"uint8"}],"name":"StateChanged","type":"event"},{"inputs":[],"name":"arbiter","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"buyer","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"confirmDelivery","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[],"name":"currentState","outputs":[{"internalType":"enum Escrow.State","name":"","type":"uint8"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"deposit","outputs":[],"stateMutability":"payable","type":"function"},{"inputs":[],"name":"getBalance","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"getState","outputs":[{"internalType":"enum Escrow.State","name":"","type":"uint8"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"refund","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[],"name":"seller","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"}];
+/* ─── Landing page logic ─── */
 
-const STATE_LABELS = ["Awaiting Payment","Awaiting Delivery","Complete","Refunded"];
+let selectedRole = null;
 
-function updateTrack(state) {
-  [0,1,2,3].forEach(i => {
-    const s = document.getElementById('s'+i);
-    const sl = document.getElementById('sl'+i);
-    s.className = 'step' + (i < state ? ' done' : i === state ? ' active' : '');
-    if (sl) sl.className = 'step-line' + (i < state ? ' done' : '');
+function selectRole(role) {
+  selectedRole = role;
+  // Update button states
+  ['buyer','seller','arbiter'].forEach(r => {
+    const btn = document.getElementById('roleBtn-' + r);
+    btn.classList.toggle('selected', r === role);
+    btn.setAttribute('aria-pressed', r === role ? 'true' : 'false');
   });
+  document.getElementById('btnToConnect').disabled = false;
 }
 
-function addLog(msg) {
-  const log = document.getElementById('txLog');
-  const empty = log.querySelector('.log-empty');
-  if (empty) empty.remove();
-  const time = new Date().toLocaleTimeString();
-  log.insertAdjacentHTML('afterbegin', `<div class="log-entry"><span class="log-time">${time}</span><span class="log-msg">${msg}</span></div>`);
+function goToConnect() {
+  if (!selectedRole) return;
+  // Update chip + text in step 2
+  const chip = document.getElementById('connectRoleChip');
+  chip.className = 'connect-role-chip ' + selectedRole;
+  chip.textContent = selectedRole.charAt(0).toUpperCase() + selectedRole.slice(1);
+  document.getElementById('connectRoleName').textContent = chip.textContent;
+  // Switch panels
+  document.getElementById('stepRole').classList.remove('active');
+  document.getElementById('stepConnect').classList.add('active');
+  // Update pips
+  document.getElementById('pip0').classList.remove('active');
+  document.getElementById('pip0').classList.add('done');
+  document.getElementById('pip1').classList.add('active');
 }
 
-function handleError(err) {
-  const msg = err?.reason || err?.message || "";
-  const map = {
-    "Only buyer allowed": "Switch to the Buyer account in MetaMask.",
-    "Only arbiter allowed": "Switch to the Arbiter account in MetaMask.",
-    "Already paid": "Funds are already held in escrow.",
-    "Not ready": "Awaiting deposit before confirming delivery.",
-    "Cannot refund": "No funds in escrow to refund."
-  };
-  const match = Object.entries(map).find(([k]) => msg.includes(k));
-  return match ? match[1] : "Transaction failed — check MetaMask.";
+function goBack() {
+  document.getElementById('stepConnect').classList.remove('active');
+  document.getElementById('stepRole').classList.add('active');
+  document.getElementById('pip0').classList.add('active');
+  document.getElementById('pip0').classList.remove('done');
+  document.getElementById('pip1').classList.remove('active');
+  document.getElementById('connectStatus').textContent = '';
+  document.getElementById('connectStatus').className = 'connect-status';
 }
 
-async function checkNetwork() {
-  const network = await provider.getNetwork();
-  if (network.chainId !== 11155111) {
-    document.getElementById("status").innerText = "Wrong network — switch to Sepolia";
-    return false;
+function showApp(walletAddress) {
+  // Update topbar wallet display
+  const short = walletAddress.slice(0,6) + '…' + walletAddress.slice(-4);
+  document.getElementById('walletDisplay').textContent = short;
+
+  // Update role badge in sidebar
+  const badge = document.getElementById('role-badge');
+  const roleCap = selectedRole.charAt(0).toUpperCase() + selectedRole.slice(1);
+  badge.textContent = roleCap + ': ' + short;
+  badge.className = 'role-badge ' + selectedRole;
+
+  // Show/hide action cards based on role
+  document.getElementById('depositCard').style.display = selectedRole === 'buyer'   ? 'flex' : 'none';
+  document.getElementById('confirmCard').style.display = selectedRole === 'buyer'   ? 'flex' : 'none';
+  document.getElementById('refundCard').style.display  = selectedRole === 'arbiter' ? 'flex' : 'none';
+
+  // Transition: hide landing, show app
+  document.getElementById('landing').classList.add('hide');
+  document.getElementById('app').classList.add('visible');
+}
+
+function disconnectWallet() {
+  // Clear localStorage
+  localStorage.removeItem('escrow_role');
+  localStorage.removeItem('escrow_wallet');
+  selectedRole = null;
+  // Reset landing UI
+  ['buyer','seller','arbiter'].forEach(r => {
+    const btn = document.getElementById('roleBtn-' + r);
+    btn.classList.remove('selected');
+    btn.setAttribute('aria-pressed', 'false');
+  });
+  document.getElementById('btnToConnect').disabled = true;
+  document.getElementById('connectStatus').textContent = '';
+  document.getElementById('connectStatus').className = 'connect-status';
+  // Go back to step 1
+  document.getElementById('stepConnect').classList.remove('active');
+  document.getElementById('stepRole').classList.add('active');
+  document.getElementById('pip0').classList.add('active');
+  document.getElementById('pip0').classList.remove('done');
+  document.getElementById('pip1').classList.remove('active');
+  // Hide app, show landing
+  document.getElementById('app').classList.remove('visible');
+  document.getElementById('landing').classList.remove('hide');
+}
+
+/* ─── Auto-restore session from localStorage ─── */
+window.addEventListener('DOMContentLoaded', () => {
+  const savedRole   = localStorage.getItem('escrow_role');
+  const savedWallet = localStorage.getItem('escrow_wallet');
+  if (savedRole && savedWallet) {
+    selectedRole = savedRole;
+    // Re-init without showing landing
+    initAppFromSession(savedRole, savedWallet);
   }
-  return true;
-}
+});
 
-async function connectWallet() {
-  if (!window.ethereum) { alert("MetaMask not found."); return; }
-  await ethereum.request({ method: "eth_requestAccounts" });
-  provider = new ethers.providers.Web3Provider(window.ethereum);
-  signer = provider.getSigner();
-  if (!await checkNetwork()) return;
-  contract = new ethers.Contract(contractAddress, abi, signer);
-
-  const accounts = await provider.listAccounts();
-  document.getElementById("connectBtn").innerText = accounts[0].slice(0,6)+"…"+accounts[0].slice(-4);
-
-  const BUYER   = "0x3A59180d32A359B3f7850a4a7A78735D582fb05A".toLowerCase();
-  const SELLER  = "0xbC85608273Af085fef7352F520f49ea55BB9068E".toLowerCase();
-  const ARBITER = "0x308e62B49fFcfA564942813Ed2629eCd5F0dE0bB".toLowerCase();
-  const addr = accounts[0].toLowerCase();
-  let role = "Observer";
-  if (addr === BUYER) role = "Buyer";
-  if (addr === SELLER) role = "Seller";
-  if (addr === ARBITER) role = "Arbiter";
-
-  document.getElementById("role-badge").innerText = role;
-
-  document.getElementById("depositCard").style.display = role === "Buyer" ? "flex" : "none";
-  document.getElementById("confirmCard").style.display = role === "Buyer" ? "flex" : "none";
-  document.getElementById("refundCard").style.display  = role === "Arbiter" ? "flex" : "none";
-
-  const bal = await contract.getBalance();
-  document.getElementById("balance").innerText = parseFloat(ethers.utils.formatEther(bal)).toFixed(4) + " ETH";
-
-  const state = await contract.getState();
-  document.getElementById("status").innerText = STATE_LABELS[state];
-  updateTrack(state);
-
-  contract.on("StateChanged", async (newState) => {
-    document.getElementById("status").innerText = STATE_LABELS[newState];
-    updateTrack(newState);
-    const b = await contract.getBalance();
-    document.getElementById("balance").innerText = parseFloat(ethers.utils.formatEther(b)).toFixed(4) + " ETH";
-  });
-  contract.on("Deposited", (buyer, amount) => addLog("Deposit — " + ethers.utils.formatEther(amount) + " ETH locked in escrow"));
-  contract.on("DeliveryConfirmed", () => addLog("Delivery confirmed — ETH released to seller"));
-  contract.on("Refunded", (buyer, amount) => addLog("Refund — " + ethers.utils.formatEther(amount) + " ETH returned to buyer"));
-}
-
-async function deposit() {
-  const btn = document.getElementById("depositBtn");
-  btn.disabled = true; btn.innerText = "Processing…";
-  const network = document.getElementById("networkSelect").value;
+async function initAppFromSession(role, walletAddress) {
   try {
-    if (network === "eth") {
-      const tx = await contract.deposit({ value: ethers.utils.parseEther("0.01") });
-      await tx.wait();
-      document.getElementById("status").innerText = "Deposited!";
-      document.getElementById("txLink").innerHTML = `<a href="https://sepolia.etherscan.io/tx/${tx.hash}" target="_blank" style="color:var(--accent2)">${tx.hash.slice(0,14)}…</a>`;
-      addLog(`Deposit confirmed — <a href="https://sepolia.etherscan.io/tx/${tx.hash}" target="_blank">view on Etherscan</a>`);
-    } else { alert("Algorand escrow coming soon 🚀"); }
-  } catch(err) { document.getElementById("status").innerText = handleError(err); }
-  finally { btn.disabled = false; btn.innerText = "Deposit 0.01 ETH"; }
-}
-
-async function confirmDelivery() {
-  const btn = document.getElementById("confirmBtn");
-  btn.disabled = true; btn.innerText = "Processing…";
-  try {
-    const tx = await contract.confirmDelivery();
-    await tx.wait();
-    document.getElementById("status").innerText = "Delivery Confirmed!";
-    document.getElementById("txLink").innerHTML = `<a href="https://sepolia.etherscan.io/tx/${tx.hash}" target="_blank" style="color:var(--accent2)">${tx.hash.slice(0,14)}…</a>`;
-    addLog(`Delivery confirmed — <a href="https://sepolia.etherscan.io/tx/${tx.hash}" target="_blank">view on Etherscan</a>`);
-  } catch(err) { document.getElementById("status").innerText = handleError(err); }
-  finally { btn.disabled = false; btn.innerText = "Confirm Delivery"; }
-}
-
-async function refund() {
-  const btn = document.getElementById("refundBtn");
-  btn.disabled = true; btn.innerText = "Processing…";
-  try {
-    const tx = await contract.refund();
-    await tx.wait();
-    document.getElementById("status").innerText = "Refunded!";
-    document.getElementById("txLink").innerHTML = `<a href="https://sepolia.etherscan.io/tx/${tx.hash}" target="_blank" style="color:var(--accent2)">${tx.hash.slice(0,14)}…</a>`;
-    addLog(`Refund issued — <a href="https://sepolia.etherscan.io/tx/${tx.hash}" target="_blank">view on Etherscan</a>`);
-  } catch(err) { document.getElementById("status").innerText = handleError(err); }
-  finally { btn.disabled = false; btn.innerText = "Issue Refund"; }
+    if (!window.ethereum) return;
+    await ethereum.request({ method: 'eth_requestAccounts' });
+    provider = new ethers.providers.Web3Provider(window.ethereum);
+    signer = provider.getSigner();
+    if (!await checkNetwork()) return;
+    contract = new ethers.Contract(contractAddress, abi, signer);
+    selectedRole = role;
+    showApp(walletAddress);
+    await loadContractData();
+    attachContractEvents();
+  } catch(e) {
+    // If restoring fails, just show landing
+    localStorage.removeItem('escrow_role');
+    localStorage.removeItem('escrow_wallet');
+  }
 }
 </script>
+</body>
+</html>
