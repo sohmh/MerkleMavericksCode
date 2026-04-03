@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Escrow DApp</title>
+</head>
+<body>
+
+<h2>Escrow System</h2>
+
+<button onclick="connectWallet()">Connect Wallet</button>
+<br><br>
+
+<button onclick="deposit()" id="depositBtn">Deposit 0.01 ETH</button>
+<button onclick="confirmDelivery()">Confirm Delivery</button>
+
+<p id="status">Status: Not Connected</p>
+
+<!-- ✅ Ethers FIRST -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js"></script>
+
+<!-- ✅ Your script -->
+<script src="script.js"></script>
+
+</body>
+</html>
