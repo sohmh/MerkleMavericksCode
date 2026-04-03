@@ -142,3 +142,17 @@ async function deposit() {
   }
 }
 document.getElementById("depositBtn").disabled = true;
+
+async function confirmDelivery() {
+  try {
+    const tx = await contract.confirmDelivery();
+    console.log("Confirm tx:", tx);
+
+    await tx.wait();
+
+    document.getElementById("status").innerText = "Delivery Confirmed!";
+  } catch (err) {
+    console.error("Confirm error:", err);
+    alert("Confirm failed — check console");
+  }
+}
