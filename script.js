@@ -203,7 +203,7 @@ async function connectWallet(){
 
     provider = new ethers.providers.Web3Provider(window.ethereum);
     signer = provider.getSigner();
-
+    if (!await checkNetwork()) return;
     contract = new ethers.Contract(contractAddress, abi, signer);
 
     const accounts = await provider.listAccounts();
@@ -259,54 +259,88 @@ document.getElementById("balance").innerText =
 }
 
 async function deposit() {
+  const btn = document.getElementById("depositBtn");
+  btn.disabled = true;
+  btn.innerText = "Processing...";
   try {
     document.getElementById("status").innerText = "Processing deposit...";
-
-    const tx = await contract.deposit({
-      value: ethers.utils.parseEther("0.01")
-    });
-
+    const tx = await contract.deposit({ value: ethers.utils.parseEther("0.01") });
     await tx.wait();
+    document.getElementById("status").innerText = "Deposited!";
     addLog("Deposit confirmed — <a href='https://sepolia.etherscan.io/tx/" + tx.hash + "' target='_blank'>view on Etherscan</a>");
     document.getElementById("txLink").innerHTML = "Latest tx: <a href='https://sepolia.etherscan.io/tx/" + tx.hash + "' target='_blank'>" + tx.hash.slice(0,12) + "...</a>";
-    document.getElementById("status").innerText = "Deposited!";
   } catch (err) {
     console.error("Deposit error:", err);
-    alert("Deposit failed — check console");
+    document.getElementById("status").innerText = handleError(err);
+  } finally {
+    btn.disabled = false;
+    btn.innerText = "Deposit 0.01 ETH";
   }
 }
 document.getElementById("confirmBtn").disabled = false;
 
 async function confirmDelivery() {
+  const btn = document.getElementById("confirmBtn");
+  btn.disabled = true;
+  btn.innerText = "Processing...";
   try {
     const tx = await contract.confirmDelivery();
-    console.log("Confirm tx:", tx);
-
     await tx.wait();
+    document.getElementById("status").innerText = "Delivery Confirmed!";
     addLog("Delivery confirmed — <a href='https://sepolia.etherscan.io/tx/" + tx.hash + "' target='_blank'>view on Etherscan</a>");
     document.getElementById("txLink").innerHTML = "Latest tx: <a href='https://sepolia.etherscan.io/tx/" + tx.hash + "' target='_blank'>" + tx.hash.slice(0,12) + "...</a>";
-    document.getElementById("status").innerText = "Delivery Confirmed!";
   } catch (err) {
     console.error("Confirm error:", err);
-    alert("Confirm failed — check console");
+    document.getElementById("status").innerText = handleError(err);
+  } finally {
+    btn.disabled = false;
+    btn.innerText = "Confirm Delivery";
   }
 }
 
 async function refund() {
+  const btn = document.getElementById("refundBtn");
+  btn.disabled = true;
+  btn.innerText = "Processing...";
   try {
     document.getElementById("status").innerText = "Processing refund...";
     const tx = await contract.refund();
     await tx.wait();
-	addLog("Refund issued — <a href='https://sepolia.etherscan.io/tx/" + tx.hash + "' target='_blank'>view on Etherscan</a>");
-    document.getElementById("txLink").innerHTML = "Latest tx: <a href='https://sepolia.etherscan.io/tx/" + tx.hash + "' target='_blank'>" + tx.hash.slice(0,12) + "...</a>";
     document.getElementById("status").innerText = "Refunded!";
     addLog("Refund issued — <a href='https://sepolia.etherscan.io/tx/" + tx.hash + "' target='_blank'>view on Etherscan</a>");
     document.getElementById("txLink").innerHTML = "Latest tx: <a href='https://sepolia.etherscan.io/tx/" + tx.hash + "' target='_blank'>" + tx.hash.slice(0,12) + "...</a>";
   } catch (err) {
     console.error("Refund error:", err);
-    document.getElementById("status").innerText = "Refund failed — are you connected as Arbiter?";
+    document.getElementById("status").innerText = handleError(err);
+  } finally {
+    btn.disabled = false;
+    btn.innerText = "Issue Refund (Arbiter)";
   }
 }
+
+function handleError(err) {
+  const msg = err?.reason || err?.message || "";
+  const revertMap = {
+    "Only buyer allowed":   "Switch to the Buyer account in MetaMask.",
+    "Only arbiter allowed": "Switch to the Arbiter account in MetaMask.",
+    "Already paid":         "Funds are already held in escrow.",
+    "Not ready":            "Awaiting deposit before confirming delivery.",
+    "Cannot refund":        "No funds in escrow to refund."
+  };
+  const match = Object.entries(revertMap).find(([k]) => msg.includes(k));
+  return match ? match[1] : "Transaction failed — check MetaMask.";
+}
+
+async function checkNetwork() {
+  const network = await provider.getNetwork();
+  if (network.chainId !== 11155111) {
+    document.getElementById("status").innerText =
+      "Wrong network — please switch MetaMask to Sepolia.";
+    return false;
+  }
+  return true;
+}
+
 function addLog(message) {
   const log = document.getElementById("txLog");
   const time = new Date().toLocaleTimeString();
