@@ -282,7 +282,7 @@ async function deposit() {
     btn.innerText = "Deposit 0.01 ETH";
   }
 }
-document.getElementById("confirmBtn").disabled = false;
+
 
 async function confirmDelivery() {
   const btn = document.getElementById("confirmBtn");
