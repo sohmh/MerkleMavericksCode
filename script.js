@@ -122,7 +122,7 @@ document.getElementById("depositBtn").addEventListener("click", function () {
   callNoOp("deposit");
 });
 document.getElementById("confirmBtn").addEventListener("click", function () {
-  callNoOp("confirm_delivery");
+  callNoOp("confirm");
 });
 document.getElementById("refundBtn").addEventListener("click", function () {
   callNoOp("refund");
