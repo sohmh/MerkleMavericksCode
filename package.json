@@ -1,0 +1,24 @@
+{
+  "name": "merklemaverickscode",
+  "version": "1.0.0",
+  "description": "Team Name : Merkle Mavericks",
+  "main": "script.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sohmh/MerkleMavericksCode.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/sohmh/MerkleMavericksCode/issues"
+  },
+  "homepage": "https://github.com/sohmh/MerkleMavericksCode#readme",
+  "dependencies": {
+    "algosdk": "^3.5.2"
+  }
+}
