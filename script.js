@@ -235,7 +235,8 @@ const bal = await contract.getBalance();
 document.getElementById("balance").innerText =
   "Escrow holds: " + ethers.utils.formatEther(bal) + " ETH";
   // ← PASTE EVENT LISTENERS HERE
-    contract.on("StateChanged", async (newState) => {
+ 
+      contract.on("StateChanged", async (newState) => {
       const labels = ["Awaiting Payment", "Awaiting Delivery", "Complete", "Refunded"];
       document.getElementById("status").innerText = "State: " + labels[newState];
       const bal = await contract.getBalance();
