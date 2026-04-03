@@ -4,11 +4,12 @@
    Do NOT remove or rename: connectWallet, deposit, confirmDelivery, refund
 ═══════════════════════════════════════════════════════════════ */
 
+let isConnecting = false; // guard against concurrent MetaMask requests
 let provider;
 let signer;
 let contract;
 
-const contractAddress = "0x47d616E2C6987C91871CC618b69523E6d9dca041";
+const contractAddress = "0x66AEa4900852D1df76Cc441938b6b40743f0b057";
 const abi = [
 	{
 		"inputs": [
@@ -288,19 +289,38 @@ function attachContractEvents() {
 
 /* ─── Connect Wallet  (called from landing page step 2) ─── */
 async function connectWallet() {
+  // Prevent duplicate / concurrent MetaMask requests
+  if (isConnecting) return;
+  isConnecting = true;
+
   const statusEl = document.getElementById("connectStatus");
   const btn      = document.getElementById("btnMetaMask");
 
   if (!window.ethereum) {
     if (statusEl) { statusEl.className = "connect-status error"; statusEl.textContent = "MetaMask not found. Please install it first."; }
+    isConnecting = false;
     return;
   }
 
-  if (btn) { btn.disabled = true; btn.textContent = "Connecting…"; }
-  if (statusEl) { statusEl.className = "connect-status"; statusEl.textContent = "Requesting accounts…"; }
+  if (btn) { btn.disabled = true; btn.innerHTML = "<span>🦊</span> Connecting…"; }
+  if (statusEl) { statusEl.className = "connect-status"; statusEl.textContent = "Checking wallet…"; }
 
   try {
-    await ethereum.request({ method: "eth_requestAccounts" });
+    // ── Use eth_accounts first (silent, no popup) ──
+    // Only call eth_requestAccounts (which triggers the MetaMask popup) if
+    // the user hasn't already granted permission to this origin.
+    let accounts = await ethereum.request({ method: "eth_accounts" });
+
+    if (!accounts || accounts.length === 0) {
+      if (statusEl) statusEl.textContent = "Waiting for MetaMask approval…";
+      // This opens the MetaMask popup exactly once
+      await ethereum.request({ method: "eth_requestAccounts" });
+      accounts = await ethereum.request({ method: "eth_accounts" });
+    }
+
+    if (!accounts || accounts.length === 0) {
+      throw new Error("No accounts found after approval.");
+    }
 
     provider = new ethers.providers.Web3Provider(window.ethereum);
     signer   = provider.getSigner();
@@ -313,7 +333,6 @@ async function connectWallet() {
 
     contract = new ethers.Contract(contractAddress, abi, signer);
 
-    const accounts = await provider.listAccounts();
     const walletAddress = accounts[0];
 
     // Persist session
@@ -322,8 +341,8 @@ async function connectWallet() {
 
     if (statusEl) { statusEl.className = "connect-status success"; statusEl.textContent = "Wallet connected! Loading app…"; }
 
-    // Small delay so user sees success state
-    await new Promise(r => setTimeout(r, 600));
+    // Small delay so user sees the success state
+    await new Promise(r => setTimeout(r, 500));
 
     // Transition to main app
     showApp(walletAddress);
@@ -335,8 +354,14 @@ async function connectWallet() {
   } catch (err) {
     console.error("connectWallet error:", err);
     const msg = err?.message || "Connection failed";
-    if (statusEl) { statusEl.className = "connect-status error"; statusEl.textContent = msg.includes("rejected") ? "Connection rejected by user." : "Error: " + msg; }
+    const friendly = msg.includes("already pending")
+      ? "MetaMask popup already open — please check MetaMask."
+      : msg.includes("rejected") || msg.includes("denied")
+      ? "Connection rejected by user."
+      : "Error: " + msg;
+    if (statusEl) { statusEl.className = "connect-status error"; statusEl.textContent = friendly; }
   } finally {
+    isConnecting = false;
     if (btn) { btn.disabled = false; btn.innerHTML = "<span>🦊</span> Connect with MetaMask"; }
   }
 }

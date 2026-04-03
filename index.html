@@ -748,7 +748,16 @@ window.addEventListener('DOMContentLoaded', () => {
 async function initAppFromSession(role, walletAddress) {
   try {
     if (!window.ethereum) return;
-    await ethereum.request({ method: 'eth_requestAccounts' });
+    // Use eth_accounts (silent — NO MetaMask popup) to check existing permissions.
+    // This avoids the "wallet_requestPermissions already pending" error when
+    // the session restores at the same time the user tries to connect manually.
+    const accounts = await ethereum.request({ method: 'eth_accounts' });
+    if (!accounts || accounts.length === 0) {
+      // MetaMask has lost the connection (e.g. user locked it). Clear session.
+      localStorage.removeItem('escrow_role');
+      localStorage.removeItem('escrow_wallet');
+      return;
+    }
     provider = new ethers.providers.Web3Provider(window.ethereum);
     signer = provider.getSigner();
     if (!await checkNetwork()) return;
@@ -758,7 +767,7 @@ async function initAppFromSession(role, walletAddress) {
     await loadContractData();
     attachContractEvents();
   } catch(e) {
-    // If restoring fails, just show landing
+    // If restoring fails for any reason, show landing page cleanly
     localStorage.removeItem('escrow_role');
     localStorage.removeItem('escrow_wallet');
   }
