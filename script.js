@@ -1,403 +1,131 @@
-let provider;
-let signer;
-let contract;
+const APP_ID = 758208257; // Replace with your deployed App ID if different
+const ALGOD_SERVER = "https://testnet-api.algonode.cloud";
+const ALGOD_PORT = "";
+const ALGOD_TOKEN = "";
 
+const algodClient = new algosdk.Algodv2(ALGOD_TOKEN, ALGOD_SERVER, ALGOD_PORT);
+const peraWallet = new window.PeraWalletConnect.PeraWalletConnect();
+const textEncoder = new TextEncoder();
 
-const contractAddress = "0x47d616E2C6987C91871CC618b69523E6d9dca041";
-const abi = [
-	{
-		"inputs": [
-			{
-				"internalType": "address",
-				"name": "_seller",
-				"type": "address"
-			},
-			{
-				"internalType": "address",
-				"name": "_arbiter",
-				"type": "address"
-			}
-		],
-		"stateMutability": "nonpayable",
-		"type": "constructor"
-	},
-	{
-		"anonymous": false,
-		"inputs": [
-			{
-				"indexed": true,
-				"internalType": "address",
-				"name": "buyer",
-				"type": "address"
-			},
-			{
-				"indexed": true,
-				"internalType": "address",
-				"name": "seller",
-				"type": "address"
-			}
-		],
-		"name": "DeliveryConfirmed",
-		"type": "event"
-	},
-	{
-		"anonymous": false,
-		"inputs": [
-			{
-				"indexed": true,
-				"internalType": "address",
-				"name": "buyer",
-				"type": "address"
-			},
-			{
-				"indexed": false,
-				"internalType": "uint256",
-				"name": "amount",
-				"type": "uint256"
-			}
-		],
-		"name": "Deposited",
-		"type": "event"
-	},
-	{
-		"anonymous": false,
-		"inputs": [
-			{
-				"indexed": true,
-				"internalType": "address",
-				"name": "buyer",
-				"type": "address"
-			},
-			{
-				"indexed": false,
-				"internalType": "uint256",
-				"name": "amount",
-				"type": "uint256"
-			}
-		],
-		"name": "Refunded",
-		"type": "event"
-	},
-	{
-		"anonymous": false,
-		"inputs": [
-			{
-				"indexed": false,
-				"internalType": "enum Escrow.State",
-				"name": "newState",
-				"type": "uint8"
-			}
-		],
-		"name": "StateChanged",
-		"type": "event"
-	},
-	{
-		"inputs": [],
-		"name": "arbiter",
-		"outputs": [
-			{
-				"internalType": "address",
-				"name": "",
-				"type": "address"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"inputs": [],
-		"name": "buyer",
-		"outputs": [
-			{
-				"internalType": "address",
-				"name": "",
-				"type": "address"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"inputs": [],
-		"name": "confirmDelivery",
-		"outputs": [],
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"inputs": [],
-		"name": "currentState",
-		"outputs": [
-			{
-				"internalType": "enum Escrow.State",
-				"name": "",
-				"type": "uint8"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"inputs": [],
-		"name": "deposit",
-		"outputs": [],
-		"stateMutability": "payable",
-		"type": "function"
-	},
-	{
-		"inputs": [],
-		"name": "getBalance",
-		"outputs": [
-			{
-				"internalType": "uint256",
-				"name": "",
-				"type": "uint256"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"inputs": [],
-		"name": "getState",
-		"outputs": [
-			{
-				"internalType": "enum Escrow.State",
-				"name": "",
-				"type": "uint8"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"inputs": [],
-		"name": "refund",
-		"outputs": [],
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"inputs": [],
-		"name": "seller",
-		"outputs": [
-			{
-				"internalType": "address",
-				"name": "",
-				"type": "address"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
-	}
-];
+let connectedAddress = "";
 
-async function connectWallet(){
-  console.log("Connect clicked");
-  console.log("CONNECT FUNCTION CALLED");
-
-  if (window.ethereum) {
-    await ethereum.request({ method: "eth_requestAccounts" });
-
-    console.log("Accounts requested");
-
-    provider = new ethers.providers.Web3Provider(window.ethereum);
-    signer = provider.getSigner();
-    if (!await checkNetwork()) return;
-    contract = new ethers.Contract(contractAddress, abi, signer);
-
-    const accounts = await provider.listAccounts();
-    console.log("Accounts:", accounts);
-
-    document.getElementById("status").innerText =
-    "Wallet Connected: " + accounts[0];
-    // Role detection
-const BUYER   = "0x3A59180d32A359B3f7850a4a7A78735D582fb05A".toLowerCase();
-const SELLER  = "0xbC85608273Af085fef7352F520f49ea55BB9068E".toLowerCase();
-const ARBITER = "0x308e62B49fFcfA564942813Ed2629eCd5F0dE0bB".toLowerCase();
-
-const addr = accounts[0].toLowerCase();
-let role = "Observer";
-if (addr === BUYER)   role = "Buyer";
-if (addr === SELLER)  role = "Seller";
-if (addr === ARBITER) role = "Arbiter";
-
-document.getElementById("role-badge").innerText = "Connected as: " + role;
-
-// Show/hide buttons based on role
-document.getElementById("depositBtn").style.display  = (role === "Buyer")   ? "inline" : "none";
-document.getElementById("confirmBtn").style.display  = (role === "Buyer")   ? "inline" : "none";
-document.getElementById("refundBtn").style.display   = (role === "Arbiter") ? "inline" : "none";
-
-// Live balance
-const bal = await contract.getBalance();
-document.getElementById("balance").innerText =
-  "Escrow holds: " + ethers.utils.formatEther(bal) + " ETH";
-  // ← PASTE EVENT LISTENERS HERE
-    contract.on("StateChanged", async (newState) => {
-      const labels = ["Awaiting Payment", "Awaiting Delivery", "Complete", "Refunded"];
-      document.getElementById("status").innerText = "State: " + labels[newState];
-      const bal = await contract.getBalance();
-      document.getElementById("balance").innerText =
-        "Escrow holds: " + ethers.utils.formatEther(bal) + " ETH";
-    });
-
-    contract.on("Deposited", (buyer, amount) => {
-      addLog("Deposit — " + ethers.utils.formatEther(amount) + " ETH locked in escrow");
-    });
-
-    contract.on("DeliveryConfirmed", (buyer, seller) => {
-      addLog("Delivery confirmed — ETH released to seller");
-    });
-
-    contract.on("Refunded", (buyer, amount) => {
-      addLog("Refund issued — " + ethers.utils.formatEther(amount) + " ETH returned to buyer");
-    });
-
-    document.getElementById("depositBtn").disabled = false;
-  }
-}
-async function detectRole() {
-  const address = await signer.getAddress();
-
-  const buyer = await contract.buyer();
-  const seller = await contract.seller();
-  const arbiter = await contract.arbiter();
-
-  let role = "Viewer";
-
-  if (address.toLowerCase() === buyer.toLowerCase()) role = "Buyer";
-  else if (address.toLowerCase() === seller.toLowerCase()) role = "Seller";
-  else if (address.toLowerCase() === arbiter.toLowerCase()) role = "Arbiter";
-
-  document.getElementById("role-badge").innerText = "Role: " + role;
-} 
-
-async function updateState() {
-  const state = await contract.currentState();
-
-  let stateText = "";
-
-  if (state == 0) stateText = "Awaiting Payment";
-  else if (state == 1) stateText = "Awaiting Delivery";
-  else if (state == 2) stateText = "Complete";
-  else if (state == 3) stateText = "Refunded";
-
-  document.getElementById("status").innerText =
-    "Status: " + stateText;
+function setStatus(message) {
+  document.getElementById("status").innerText = "Status: " + message;
 }
 
-function logTx(message) {
-  const li = document.createElement("li");
-  li.innerText = message;
-  document.getElementById("txLog").appendChild(li);
+function setTxId(txId) {
+  document.getElementById("txId").innerText = txId ? "Transaction ID: " + txId : "";
 }
 
-async function deposit() {
-  const btn = document.getElementById("depositBtn");
-  btn.disabled = true;
-  const network = document.getElementById("networkSelect").value;
-  btn.innerText = network === "eth" ? "Processing..." : "Deposit (Algorand)";
+function setAddress(address) {
+  document.getElementById("address").innerText = address || "Not connected";
+}
+
+function toggleActionButtons(disabled) {
+  document.getElementById("depositBtn").disabled = disabled;
+  document.getElementById("confirmBtn").disabled = disabled;
+  document.getElementById("refundBtn").disabled = disabled;
+}
+
+async function connectWallet() {
   try {
-    if (network === "eth") {
-      const tx = await contract.deposit({ value: ethers.utils.parseEther("0.01") });
-      await tx.wait();
-	  logTx("Deposit successful: " + tx.hash);
+    setStatus("Connecting wallet...");
+    const accounts = await peraWallet.connect();
+    connectedAddress = accounts[0] || "";
 
-      document.getElementById("status").innerText = "Deposited on Ethereum!";
-      addLog("Deposit confirmed — <a href='https://sepolia.etherscan.io/tx/" + tx.hash + "' target='_blank'>view on Etherscan</a>");
-      document.getElementById("txLink").innerHTML = "Latest tx: <a href='https://sepolia.etherscan.io/tx/" + tx.hash + "' target='_blank'>" + tx.hash.slice(0,12) + "...</a>";
-    } else {
-      alert("Algorand escrow coming soon 🚀");
-      document.getElementById("status").innerText = "Algorand mode (demo)";
+    if (!connectedAddress) {
+      throw new Error("No account returned from Pera Wallet");
     }
-  } catch (err) {
-    console.error("Deposit error:", err);
-    document.getElementById("status").innerText = handleError(err);
-  } finally {
-    btn.disabled = false;
-    btn.innerText = "Deposit 0.01 ETH";
+
+    setAddress(connectedAddress);
+    setStatus("Wallet connected");
+  } catch (error) {
+    console.error(error);
+    setStatus("Wallet connection failed");
   }
 }
 
+function flattenSignedTxns(signedResult) {
+  if (signedResult instanceof Uint8Array) return [signedResult];
+  if (Array.isArray(signedResult)) {
+    const flat = [];
+    for (let i = 0; i < signedResult.length; i += 1) {
+      const item = signedResult[i];
+      if (item instanceof Uint8Array) {
+        flat.push(item);
+      } else if (Array.isArray(item)) {
+        for (let j = 0; j < item.length; j += 1) {
+          if (item[j] instanceof Uint8Array) flat.push(item[j]);
+        }
+      }
+    }
+    return flat;
+  }
+  throw new Error("Unsupported signed transaction format from Pera Wallet");
+}
 
-async function confirmDelivery() {
-  const btn = document.getElementById("confirmBtn");
-  btn.disabled = true;
-  btn.innerText = "Processing...";
+async function signWithPera(txn) {
+  const txnsToSign = [
+    [
+      {
+        txn: txn,
+        signers: [connectedAddress],
+      },
+    ],
+  ];
+
+  const signedResult = await peraWallet.signTransaction(txnsToSign);
+  const signedTxns = flattenSignedTxns(signedResult);
+  if (!signedTxns.length) throw new Error("No signed transaction returned");
+  return signedTxns[0];
+}
+
+async function callNoOp(methodName) {
+  if (!connectedAddress) {
+    setStatus("Connect wallet first");
+    return;
+  }
+
   try {
-    const tx = await contract.confirmDelivery();
-    await tx.wait();
-	logTx("Confirmed: " + tx.hash);
+    setTxId("");
+    setStatus("Building " + methodName + " transaction...");
 
-    document.getElementById("status").innerText = "Delivery Confirmed!";
-    addLog("Delivery confirmed — <a href='https://sepolia.etherscan.io/tx/" + tx.hash + "' target='_blank'>view on Etherscan</a>");
-    document.getElementById("txLink").innerHTML = "Latest tx: <a href='https://sepolia.etherscan.io/tx/" + tx.hash + "' target='_blank'>" + tx.hash.slice(0,12) + "...</a>";
-  } catch (err) {
-    console.error("Confirm error:", err);
-    document.getElementById("status").innerText = handleError(err);
-  } finally {
-    btn.disabled = false;
-    btn.innerText = "Confirm Delivery";
+    const suggestedParams = await algodClient.getTransactionParams().do();
+    const appArgs = [textEncoder.encode(methodName)];
+
+    const txn = algosdk.makeApplicationNoOpTxnFromObject({
+      from: connectedAddress,
+      appIndex: APP_ID,
+      appArgs: appArgs,
+      suggestedParams: suggestedParams,
+    });
+
+    setStatus("Please approve in Pera Wallet...");
+    const signedTxn = await signWithPera(txn);
+
+    const submitResult = await algodClient.sendRawTransaction(signedTxn).do();
+    const txId = submitResult.txid;
+
+    await algosdk.waitForConfirmation(algodClient, txId, 4);
+
+    setTxId(txId);
+    setStatus(methodName + " successful");
+  } catch (error) {
+    console.error(error);
+    setStatus(methodName + " failed");
   }
 }
 
+document.getElementById("appIdValue").innerText = String(APP_ID);
+document.getElementById("connectBtn").addEventListener("click", connectWallet);
+document.getElementById("depositBtn").addEventListener("click", function () {
+  callNoOp("deposit");
+});
+document.getElementById("confirmBtn").addEventListener("click", function () {
+  callNoOp("confirm_delivery");
+});
+document.getElementById("refundBtn").addEventListener("click", function () {
+  callNoOp("refund");
+});
 
-async function refund() {
-  const btn = document.getElementById("refundBtn");
-  btn.disabled = true;
-  btn.innerText = "Processing...";
-  try {
-    document.getElementById("status").innerText = "Processing refund...";
-    const tx = await contract.refund();
-    await tx.wait();
-	logTx("Refund issued to buyer");
-
-    document.getElementById("status").innerText = "Refunded!";
-    addLog("Refund issued — <a href='https://sepolia.etherscan.io/tx/" + tx.hash + "' target='_blank'>view on Etherscan</a>");
-    document.getElementById("txLink").innerHTML = "Latest tx: <a href='https://sepolia.etherscan.io/tx/" + tx.hash + "' target='_blank'>" + tx.hash.slice(0,12) + "...</a>";
-  } catch (err) {
-    console.error("Refund error:", err);
-    document.getElementById("status").innerText = handleError(err);
-  } finally {
-    btn.disabled = false;
-    btn.innerText = "Issue Refund (Arbiter)";
-  }
-}
-
-function handleError(err) {
-  const msg = err?.reason || err?.message || "";
-  const revertMap = {
-    "Only buyer allowed":   "Switch to the Buyer account in MetaMask.",
-    "Only arbiter allowed": "Switch to the Arbiter account in MetaMask.",
-    "Already paid":         "Funds are already held in escrow.",
-    "Not ready":            "Awaiting deposit before confirming delivery.",
-    "Cannot refund":        "No funds in escrow to refund."
-  };
-  const match = Object.entries(revertMap).find(([k]) => msg.includes(k));
-  return match ? match[1] : "Transaction failed — check MetaMask.";
-}
-
-async function updateBalance() {
-  const balance = await provider.getBalance(contractAddress);
-  const eth = ethers.utils.formatEther(balance);
-
-  document.getElementById("balance").innerText =
-    "Escrow holds: " + eth + " ETH";
-}
-
-async function checkNetwork() {
-  const network = await provider.getNetwork();
-  if (network.chainId !== 11155111) {
-    document.getElementById("status").innerText =
-      "Wrong network — please switch MetaMask to Sepolia.";
-    return false;
-  }
-  return true;
-}
-
-function addLog(message) {
-  const log = document.getElementById("txLog");
-  const time = new Date().toLocaleTimeString();
-  log.innerHTML = `<li>${time} — ${message}</li>` + log.innerHTML;
-}
+toggleActionButtons(false);
