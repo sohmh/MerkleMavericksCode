@@ -233,6 +233,27 @@ document.getElementById("refundBtn").style.display   = (role === "Arbiter") ? "i
 const bal = await contract.getBalance();
 document.getElementById("balance").innerText =
   "Escrow holds: " + ethers.utils.formatEther(bal) + " ETH";
+  // ← PASTE EVENT LISTENERS HERE
+    contract.on("StateChanged", async (newState) => {
+      const labels = ["Awaiting Payment", "Awaiting Delivery", "Complete", "Refunded"];
+      document.getElementById("status").innerText = "State: " + labels[newState];
+      const bal = await contract.getBalance();
+      document.getElementById("balance").innerText =
+        "Escrow holds: " + ethers.utils.formatEther(bal) + " ETH";
+    });
+
+    contract.on("Deposited", (buyer, amount) => {
+      addLog("Deposit — " + ethers.utils.formatEther(amount) + " ETH locked in escrow");
+    });
+
+    contract.on("DeliveryConfirmed", (buyer, seller) => {
+      addLog("Delivery confirmed — ETH released to seller");
+    });
+
+    contract.on("Refunded", (buyer, amount) => {
+      addLog("Refund issued — " + ethers.utils.formatEther(amount) + " ETH returned to buyer");
+    });
+
     document.getElementById("depositBtn").disabled = false;
   }
 }
@@ -246,7 +267,8 @@ async function deposit() {
     });
 
     await tx.wait();
-
+    addLog("Deposit confirmed — <a href='https://sepolia.etherscan.io/tx/" + tx.hash + "' target='_blank'>view on Etherscan</a>");
+    document.getElementById("txLink").innerHTML = "Latest tx: <a href='https://sepolia.etherscan.io/tx/" + tx.hash + "' target='_blank'>" + tx.hash.slice(0,12) + "...</a>";
     document.getElementById("status").innerText = "Deposited!";
   } catch (err) {
     console.error("Deposit error:", err);
@@ -261,10 +283,32 @@ async function confirmDelivery() {
     console.log("Confirm tx:", tx);
 
     await tx.wait();
-
+    addLog("Delivery confirmed — <a href='https://sepolia.etherscan.io/tx/" + tx.hash + "' target='_blank'>view on Etherscan</a>");
+    document.getElementById("txLink").innerHTML = "Latest tx: <a href='https://sepolia.etherscan.io/tx/" + tx.hash + "' target='_blank'>" + tx.hash.slice(0,12) + "...</a>";
     document.getElementById("status").innerText = "Delivery Confirmed!";
   } catch (err) {
     console.error("Confirm error:", err);
     alert("Confirm failed — check console");
   }
+}
+
+async function refund() {
+  try {
+    document.getElementById("status").innerText = "Processing refund...";
+    const tx = await contract.refund();
+    await tx.wait();
+	addLog("Refund issued — <a href='https://sepolia.etherscan.io/tx/" + tx.hash + "' target='_blank'>view on Etherscan</a>");
+    document.getElementById("txLink").innerHTML = "Latest tx: <a href='https://sepolia.etherscan.io/tx/" + tx.hash + "' target='_blank'>" + tx.hash.slice(0,12) + "...</a>";
+    document.getElementById("status").innerText = "Refunded!";
+    addLog("Refund issued — <a href='https://sepolia.etherscan.io/tx/" + tx.hash + "' target='_blank'>view on Etherscan</a>");
+    document.getElementById("txLink").innerHTML = "Latest tx: <a href='https://sepolia.etherscan.io/tx/" + tx.hash + "' target='_blank'>" + tx.hash.slice(0,12) + "...</a>";
+  } catch (err) {
+    console.error("Refund error:", err);
+    document.getElementById("status").innerText = "Refund failed — are you connected as Arbiter?";
+  }
+}
+function addLog(message) {
+  const log = document.getElementById("txLog");
+  const time = new Date().toLocaleTimeString();
+  log.innerHTML = `<li>${time} — ${message}</li>` + log.innerHTML;
 }
