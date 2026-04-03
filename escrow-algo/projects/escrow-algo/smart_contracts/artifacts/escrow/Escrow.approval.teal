@@ -1,0 +1,273 @@
+#pragma version 11
+#pragma typetrack false
+
+// algopy.arc4.ARC4Contract.approval_program() -> uint64:
+main:
+    intcblock 0 1 32
+    bytecblock "state" "amount" "buyer" "arbiter" "seller" 0x151f7c75
+    // smart_contracts/escrow/contract.py:4
+    // class Escrow(ARC4Contract):
+    txn NumAppArgs
+    bz main___algopy_default_create@15
+    txn OnCompletion
+    !
+    assert
+    txn ApplicationID
+    assert
+    pushbytess 0x296db971 0x92e03b1c 0x4d520223 0x23e629f7 0xa2206089 0x59fb0c57 // method "init(address,address)void", method "deposit()void", method "confirm()void", method "refund()void", method "get_state()uint64", method "get_amount()uint64"
+    txna ApplicationArgs 0
+    match init deposit confirm refund get_state get_amount
+    err
+
+main___algopy_default_create@15:
+    txn OnCompletion
+    !
+    txn ApplicationID
+    !
+    &&
+    return
+
+
+// smart_contracts.escrow.contract.Escrow.init[routing]() -> void:
+init:
+    // smart_contracts/escrow/contract.py:13
+    // @arc4.abimethod
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_2 // 32
+    ==
+    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
+    txna ApplicationArgs 2
+    dup
+    len
+    intc_2 // 32
+    ==
+    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
+    // smart_contracts/escrow/contract.py:15
+    // self.buyer.value = Txn.sender
+    bytec_2 // "buyer"
+    txn Sender
+    app_global_put
+    // smart_contracts/escrow/contract.py:16
+    // self.seller.value = seller
+    bytec 4 // "seller"
+    uncover 2
+    app_global_put
+    // smart_contracts/escrow/contract.py:17
+    // self.arbiter.value = arbiter
+    bytec_3 // "arbiter"
+    swap
+    app_global_put
+    // smart_contracts/escrow/contract.py:19
+    // self.state.value = UInt64(0)
+    bytec_0 // "state"
+    intc_0 // 0
+    app_global_put
+    // smart_contracts/escrow/contract.py:13
+    // @arc4.abimethod
+    intc_1 // 1
+    return
+
+
+// smart_contracts.escrow.contract.Escrow.deposit[routing]() -> void:
+deposit:
+    // smart_contracts/escrow/contract.py:23
+    // assert self.state.value == UInt64(0), "Already paid"
+    intc_0 // 0
+    bytec_0 // "state"
+    app_global_get_ex
+    assert // check self.state exists
+    !
+    assert // Already paid
+    // smart_contracts/escrow/contract.py:24
+    // assert Txn.sender == self.buyer.value, "Only buyer"
+    txn Sender
+    intc_0 // 0
+    bytec_2 // "buyer"
+    app_global_get_ex
+    assert // check self.buyer exists
+    ==
+    assert // Only buyer
+    // smart_contracts/escrow/contract.py:25
+    // assert Txn.amount > UInt64(0), "Send ALGO"
+    txn Amount
+    assert // Send ALGO
+    // smart_contracts/escrow/contract.py:27
+    // self.amount.value = Txn.amount
+    bytec_1 // "amount"
+    txn Amount
+    app_global_put
+    // smart_contracts/escrow/contract.py:28
+    // self.state.value = UInt64(1)
+    bytec_0 // "state"
+    intc_1 // 1
+    app_global_put
+    // smart_contracts/escrow/contract.py:21
+    // @arc4.abimethod
+    intc_1 // 1
+    return
+
+
+// smart_contracts.escrow.contract.Escrow.confirm[routing]() -> void:
+confirm:
+    // smart_contracts/escrow/contract.py:32
+    // assert self.state.value == UInt64(1), "Not ready"
+    intc_0 // 0
+    bytec_0 // "state"
+    app_global_get_ex
+    assert // check self.state exists
+    intc_1 // 1
+    ==
+    assert // Not ready
+    // smart_contracts/escrow/contract.py:33
+    // assert Txn.sender == self.arbiter.value, "Only arbiter"
+    txn Sender
+    intc_0 // 0
+    bytec_3 // "arbiter"
+    app_global_get_ex
+    assert // check self.arbiter exists
+    ==
+    assert // Only arbiter
+    // smart_contracts/escrow/contract.py:35-38
+    // itxn.Payment(
+    //     receiver=self.seller.value,
+    //     amount=self.amount.value
+    // ).submit()
+    itxn_begin
+    // smart_contracts/escrow/contract.py:36
+    // receiver=self.seller.value,
+    intc_0 // 0
+    bytec 4 // "seller"
+    app_global_get_ex
+    assert // check self.seller exists
+    // smart_contracts/escrow/contract.py:37
+    // amount=self.amount.value
+    intc_0 // 0
+    bytec_1 // "amount"
+    app_global_get_ex
+    assert // check self.amount exists
+    itxn_field Amount
+    itxn_field Receiver
+    // smart_contracts/escrow/contract.py:35
+    // itxn.Payment(
+    intc_1 // pay
+    itxn_field TypeEnum
+    intc_0 // 0
+    itxn_field Fee
+    // smart_contracts/escrow/contract.py:35-38
+    // itxn.Payment(
+    //     receiver=self.seller.value,
+    //     amount=self.amount.value
+    // ).submit()
+    itxn_submit
+    // smart_contracts/escrow/contract.py:40
+    // self.state.value = UInt64(2)
+    bytec_0 // "state"
+    pushint 2
+    app_global_put
+    // smart_contracts/escrow/contract.py:30
+    // @arc4.abimethod
+    intc_1 // 1
+    return
+
+
+// smart_contracts.escrow.contract.Escrow.refund[routing]() -> void:
+refund:
+    // smart_contracts/escrow/contract.py:44
+    // assert self.state.value == UInt64(1), "Cannot refund"
+    intc_0 // 0
+    bytec_0 // "state"
+    app_global_get_ex
+    assert // check self.state exists
+    intc_1 // 1
+    ==
+    assert // Cannot refund
+    // smart_contracts/escrow/contract.py:45
+    // assert Txn.sender == self.arbiter.value, "Only arbiter"
+    txn Sender
+    intc_0 // 0
+    bytec_3 // "arbiter"
+    app_global_get_ex
+    assert // check self.arbiter exists
+    ==
+    assert // Only arbiter
+    // smart_contracts/escrow/contract.py:47-50
+    // itxn.Payment(
+    //     receiver=self.buyer.value,
+    //     amount=self.amount.value
+    // ).submit()
+    itxn_begin
+    // smart_contracts/escrow/contract.py:48
+    // receiver=self.buyer.value,
+    intc_0 // 0
+    bytec_2 // "buyer"
+    app_global_get_ex
+    assert // check self.buyer exists
+    // smart_contracts/escrow/contract.py:49
+    // amount=self.amount.value
+    intc_0 // 0
+    bytec_1 // "amount"
+    app_global_get_ex
+    assert // check self.amount exists
+    itxn_field Amount
+    itxn_field Receiver
+    // smart_contracts/escrow/contract.py:47
+    // itxn.Payment(
+    intc_1 // pay
+    itxn_field TypeEnum
+    intc_0 // 0
+    itxn_field Fee
+    // smart_contracts/escrow/contract.py:47-50
+    // itxn.Payment(
+    //     receiver=self.buyer.value,
+    //     amount=self.amount.value
+    // ).submit()
+    itxn_submit
+    // smart_contracts/escrow/contract.py:52
+    // self.state.value = UInt64(3)
+    bytec_0 // "state"
+    pushint 3
+    app_global_put
+    // smart_contracts/escrow/contract.py:42
+    // @arc4.abimethod
+    intc_1 // 1
+    return
+
+
+// smart_contracts.escrow.contract.Escrow.get_state[routing]() -> void:
+get_state:
+    // smart_contracts/escrow/contract.py:56
+    // return self.state.value
+    intc_0 // 0
+    bytec_0 // "state"
+    app_global_get_ex
+    assert // check self.state exists
+    // smart_contracts/escrow/contract.py:54
+    // @arc4.abimethod
+    itob
+    bytec 5 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_1 // 1
+    return
+
+
+// smart_contracts.escrow.contract.Escrow.get_amount[routing]() -> void:
+get_amount:
+    // smart_contracts/escrow/contract.py:60
+    // return self.amount.value
+    intc_0 // 0
+    bytec_1 // "amount"
+    app_global_get_ex
+    assert // check self.amount exists
+    // smart_contracts/escrow/contract.py:58
+    // @arc4.abimethod
+    itob
+    bytec 5 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_1 // 1
+    return
