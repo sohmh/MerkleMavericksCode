@@ -211,7 +211,28 @@ async function connectWallet(){
 
     document.getElementById("status").innerText =
     "Wallet Connected: " + accounts[0];
+    // Role detection
+const BUYER   = "0x3A59180d32A359B3f7850a4a7A78735D582fb05A".toLowerCase();
+const SELLER  = "0xbC85608273Af085fef7352F520f49ea55BB9068E".toLowerCase();
+const ARBITER = "0x308e62B49fFcfA564942813Ed2629eCd5F0dE0bB".toLowerCase();
 
+const addr = accounts[0].toLowerCase();
+let role = "Observer";
+if (addr === BUYER)   role = "Buyer";
+if (addr === SELLER)  role = "Seller";
+if (addr === ARBITER) role = "Arbiter";
+
+document.getElementById("role-badge").innerText = "Connected as: " + role;
+
+// Show/hide buttons based on role
+document.getElementById("depositBtn").style.display  = (role === "Buyer")   ? "inline" : "none";
+document.getElementById("confirmBtn").style.display  = (role === "Buyer")   ? "inline" : "none";
+document.getElementById("refundBtn").style.display   = (role === "Arbiter") ? "inline" : "none";
+
+// Live balance
+const bal = await contract.getBalance();
+document.getElementById("balance").innerText =
+  "Escrow holds: " + ethers.utils.formatEther(bal) + " ETH";
     document.getElementById("depositBtn").disabled = false;
   }
 }
