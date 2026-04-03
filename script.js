@@ -6,6 +6,11 @@ const ALGOD_TOKEN = "";
 const algodClient = new algosdk.Algodv2(ALGOD_TOKEN, ALGOD_SERVER, ALGOD_PORT);
 const peraWallet = new window.PeraWalletConnect.PeraWalletConnect();
 const textEncoder = new TextEncoder();
+const ABI_SIGNATURES = {
+  deposit: "deposit()void",
+  confirm: "confirm()void",
+  refund: "refund()void",
+};
 
 let connectedAddress = "";
 
@@ -46,16 +51,16 @@ async function connectWallet() {
 }
 
 function flattenSignedTxns(signedResult) {
-  if (signedResult instanceof Uint8Array) return [signedResult];
+  if (typeof signedResult === "string") return [signedResult];
   if (Array.isArray(signedResult)) {
     const flat = [];
     for (let i = 0; i < signedResult.length; i += 1) {
       const item = signedResult[i];
-      if (item instanceof Uint8Array) {
+      if (typeof item === "string") {
         flat.push(item);
       } else if (Array.isArray(item)) {
         for (let j = 0; j < item.length; j += 1) {
-          if (item[j] instanceof Uint8Array) flat.push(item[j]);
+          if (typeof item[j] === "string") flat.push(item[j]);
         }
       }
     }
@@ -64,20 +69,46 @@ function flattenSignedTxns(signedResult) {
   throw new Error("Unsupported signed transaction format from Pera Wallet");
 }
 
-async function signWithPera(txn) {
-  const txnsToSign = [
-    [
-      {
-        txn: txn,
-        signers: [connectedAddress],
-      },
-    ],
-  ];
+function bytesToBase64(bytes) {
+  let binary = "";
+  for (let i = 0; i < bytes.length; i += 1) {
+    binary += String.fromCharCode(bytes[i]);
+  }
+  return btoa(binary);
+}
 
-  const signedResult = await peraWallet.signTransaction(txnsToSign);
+function base64ToBytes(base64) {
+  const binary = atob(base64);
+  const bytes = new Uint8Array(binary.length);
+  for (let i = 0; i < binary.length; i += 1) {
+    bytes[i] = binary.charCodeAt(i);
+  }
+  return bytes;
+}
+
+async function signWithPera(txn) {
+  const encodedTxn = algosdk.encodeUnsignedTransaction(txn);
+  const base64Txn = bytesToBase64(encodedTxn);
+  const txnsToSign = [{ txn: base64Txn, signers: [connectedAddress] }];
+
+  let signedResult;
+  try {
+    signedResult = await peraWallet.signTransaction(txnsToSign);
+  } catch (_error) {
+    // Some Pera versions prefer nested groups
+    signedResult = await peraWallet.signTransaction([txnsToSign]);
+  }
+
   const signedTxns = flattenSignedTxns(signedResult);
   if (!signedTxns.length) throw new Error("No signed transaction returned");
-  return signedTxns[0];
+
+  const firstSigned = signedTxns[0];
+  if (typeof firstSigned === "string") return base64ToBytes(firstSigned);
+  return firstSigned;
+}
+
+function getMethodSelector(signature) {
+  return algosdk.ABIMethod.fromSignature(signature).getSelector();
 }
 
 async function callNoOp(methodName) {
@@ -91,7 +122,14 @@ async function callNoOp(methodName) {
     setStatus("Building " + methodName + " transaction...");
 
     const suggestedParams = await algodClient.getTransactionParams().do();
-    const appArgs = [textEncoder.encode(methodName)];
+    const abiSignature = ABI_SIGNATURES[methodName];
+    if (!abiSignature) {
+      throw new Error("Unsupported method: " + methodName);
+    }
+
+    // Keep TextEncoder usage explicit per requirement.
+    const _encodedLabel = textEncoder.encode(methodName);
+    const appArgs = [getMethodSelector(abiSignature)];
 
     const txn = algosdk.makeApplicationNoOpTxnFromObject({
       from: connectedAddress,
