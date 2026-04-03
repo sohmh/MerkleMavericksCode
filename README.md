@@ -1,5 +1,11 @@
 # Escrow Based Secure Checkout System
+Team Name : Merkle Mavericks 
 
+Team Members :
+
+Soham Gurav
+
+Atharva Gore
 ##  Overview
 
 The project implements a **decentralized escrow system** using Ethereum smart contracts. It ensures secure transactions between a buyer and seller by introducing an arbiter who can resolve disputes , hence
