@@ -257,6 +257,21 @@ document.getElementById("balance").innerText =
     document.getElementById("depositBtn").disabled = false;
   }
 }
+async function detectRole() {
+  const address = await signer.getAddress();
+
+  const buyer = await contract.buyer();
+  const seller = await contract.seller();
+  const arbiter = await contract.arbiter();
+
+  let role = "Viewer";
+
+  if (address.toLowerCase() === buyer.toLowerCase()) role = "Buyer";
+  else if (address.toLowerCase() === seller.toLowerCase()) role = "Seller";
+  else if (address.toLowerCase() === arbiter.toLowerCase()) role = "Arbiter";
+
+  document.getElementById("role-badge").innerText = "Role: " + role;
+} 
 
 async function deposit() {
   const btn = document.getElementById("depositBtn");
@@ -301,6 +316,20 @@ async function confirmDelivery() {
     btn.disabled = false;
     btn.innerText = "Confirm Delivery";
   }
+}
+
+async function updateState() {
+  const state = await contract.currentState();
+
+  let stateText = "";
+
+  if (state == 0) stateText = "Awaiting Payment";
+  else if (state == 1) stateText = "Awaiting Delivery";
+  else if (state == 2) stateText = "Complete";
+  else if (state == 3) stateText = "Refunded";
+
+  document.getElementById("status").innerText =
+    "Status: " + stateText;
 }
 
 async function refund() {
