@@ -122,16 +122,11 @@ async function connectWallet(){
 
 async function deposit() {
   try {
-    if (!contract) {
-      alert("Please connect wallet first!");
-      return;
-    }
+    document.getElementById("status").innerText = "Processing deposit...";
 
     const tx = await contract.deposit({
       value: ethers.utils.parseEther("0.01")
     });
-
-    console.log("Transaction sent:", tx);
 
     await tx.wait();
 
@@ -141,7 +136,7 @@ async function deposit() {
     alert("Deposit failed — check console");
   }
 }
-document.getElementById("depositBtn").disabled = true;
+document.getElementById("confirmBtn").disabled = false;
 
 async function confirmDelivery() {
   try {
