@@ -9,7 +9,7 @@ let provider;
 let signer;
 let contract;
 
-const contractAddress = "0x66AEa4900852D1df76Cc441938b6b40743f0b057";
+const contractAddress = "0x982A6479c26a3FBE68eA309b817724e8Ed72c90a";
 const abi = [
 	{
 		"inputs": [
