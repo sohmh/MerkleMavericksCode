@@ -1,5 +1,5 @@
 /* ═══════════════════════════════════════════════════════════════
-   EscrowChain — script.js
+   LockChain — script.js
    Contract interaction logic. Landing page logic lives in index.html.
    Do NOT remove or rename: connectWallet, deposit, confirmDelivery, refund
 ═══════════════════════════════════════════════════════════════ */
