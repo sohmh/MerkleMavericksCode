@@ -15,7 +15,7 @@
    2. Create a free Firebase project → paste your firebaseConfig below
       (Realtime Database, rules: authenticated read/write or open for hackathon)
 ───────────────────────────────────────────────────────────────*/
-const FACTORY_ADDRESS = "0x34BFb985eF2E051134D83149BB9700f3089526Bf";
+const FACTORY_ADDRESS = "0x24DbBA01914107c083bf21dC80A0AebB0e7Fefa4";
 
 // Firebase config — replace with yours from the Firebase console
 const firebaseConfig = {
