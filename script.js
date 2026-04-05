@@ -19,13 +19,13 @@ const FACTORY_ADDRESS = "0xf50f8120F3110826fcFBC4B9A5C4c4F2e0Acf60F";
 
 // Firebase config — replace with yours from the Firebase console
 const firebaseConfig = {
-  apiKey:            "PASTE_YOUR_FIREBASE_API_KEY",
-  authDomain:        "PASTE.firebaseapp.com",
-  databaseURL:       "https://PASTE-default-rtdb.firebaseio.com",
-  projectId:         "PASTE",
-  storageBucket:     "PASTE.appspot.com",
-  messagingSenderId: "PASTE",
-  appId:             "PASTE"
+  apiKey:            "AIzaSyAgWROSyc3AXROEY08mCHl3ps6HMFXKUuE",
+  authDomain:        "lockchain-257smv.firebaseapp.com",
+  databaseURL:       "https://lockchain-257smv-default-rtdb.firebaseio.com",
+  projectId:         "lockchain-257smv",
+  storageBucket:     "lockchain-257smv.firebasestorage.app",
+  messagingSenderId: "960742810909",
+  appId:             "1:960742810909:web:bd913d1c4979c3b6d66df4"
 };
 
 /* ─────────────────────────────────────────────────────────────
