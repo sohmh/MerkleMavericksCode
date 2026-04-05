@@ -21,7 +21,7 @@ const FACTORY_ADDRESS = "0x34BFb985eF2E051134D83149BB9700f3089526Bf";
 const firebaseConfig = {
   apiKey:            "AIzaSyAgWROSyc3AXROEY08mCHl3ps6HMFXKUuE",
   authDomain:        "lockchain-257smv.firebaseapp.com",
-  databaseURL:       "https://lockchain-257smv-default-rtdb.firebaseio.com",
+  databaseURL:       "https://lockchain-257smv-default-rtdb.asia-southeast1.firebasedatabase.app",
   projectId:         "lockchain-257smv",
   storageBucket:     "lockchain-257smv.firebasestorage.app",
   messagingSenderId: "960742810909",
