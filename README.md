@@ -176,6 +176,46 @@ cd MerkleMavericksCode
 * Order details are not customizable yet
 
 ---
+**Commit message:**
+
+```
+feat: add EscrowFactory + Firebase lobby for permissionless multi-party escrow
+```
+
+---
+
+**README addition** (paste this after your existing content):
+
+---
+
+## v2 Upgrade — Permissionless Multi-Party Escrow
+
+### What changed
+
+Previously, the escrow contract was manually deployed with hardcoded buyer, seller, and arbiter addresses. This meant only pre-configured wallets could use the app.
+
+The v2 upgrade makes the dApp fully open — anyone with a MetaMask wallet and the site link can participate in an escrow agreement with two other strangers, with no manual setup required.
+
+### How it works now
+
+**EscrowFactory.sol** is a single contract deployed once on Sepolia. Instead of deploying `Escrow.sol` by hand each time, the factory deploys a fresh child `Escrow` contract on demand whenever a new group of three participants is ready.
+
+The matchmaking between participants is handled by a Firebase Realtime Database lobby system:
+
+1. The Buyer visits the site, selects their role, and connects MetaMask — a lobby room is created and they receive a shareable link
+2. The Seller and Arbiter open that link, each pick their role, and connect their own MetaMask wallets
+3. Once all three slots are filled, the Buyer clicks **Deploy Escrow Contract** — their wallet calls `EscrowFactory.createEscrow(seller, arbiter)` on-chain
+4. The factory emits an `EscrowCreated` event containing the new contract's address, which is saved to Firebase
+5. All three participants are automatically redirected to the live escrow dashboard
+
+### New files
+
+- `contracts/EscrowFactory.sol` — factory + child Escrow contract (replaces the standalone `Escrow.sol`)
+- `index.html` — added lobby waiting room UI with live participant slots and shareable link generation
+- `script.js` — added Firebase lobby logic, factory contract interaction, and room-based session management
+
+
+---
 
 ## 🔮 Future Improvements
 
