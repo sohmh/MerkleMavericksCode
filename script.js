@@ -546,6 +546,7 @@ async function deposit() {
   try {
     const tx = await escrowContract.deposit({ value: ethers.utils.parseEther("0.01") });
     await tx.wait();
+	await loadContractData();
     addLog("Deposit confirmed — <a href='https://sepolia.etherscan.io/tx/" + tx.hash + "' target='_blank'>view on Etherscan</a>");
     document.getElementById("txLink").innerHTML =
       "Latest tx: <a href='https://sepolia.etherscan.io/tx/" + tx.hash + "' target='_blank'>" + tx.hash.slice(0,12) + "…</a>";
@@ -559,6 +560,7 @@ async function confirmDelivery() {
   try {
     const tx = await escrowContract.confirmDelivery();
     await tx.wait();
+	await loadContractData();
     addLog("Delivery confirmed — <a href='https://sepolia.etherscan.io/tx/" + tx.hash + "' target='_blank'>view on Etherscan</a>");
     document.getElementById("txLink").innerHTML =
       "Latest tx: <a href='https://sepolia.etherscan.io/tx/" + tx.hash + "' target='_blank'>" + tx.hash.slice(0,12) + "…</a>";
@@ -573,6 +575,7 @@ async function refund() {
     setStatus("Processing refund…");
     const tx = await escrowContract.refund();
     await tx.wait();
+	await loadContractData();
     addLog("Refund issued — <a href='https://sepolia.etherscan.io/tx/" + tx.hash + "' target='_blank'>view on Etherscan</a>");
     document.getElementById("txLink").innerHTML =
       "Latest tx: <a href='https://sepolia.etherscan.io/tx/" + tx.hash + "' target='_blank'>" + tx.hash.slice(0,12) + "…</a>";
