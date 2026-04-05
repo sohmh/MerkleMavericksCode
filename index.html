@@ -37,11 +37,8 @@
     background: var(--bg);
     transition: opacity 0.5s ease, transform 0.5s ease;
   }
-  #landing.hide {
-    opacity: 0; pointer-events: none; transform: scale(0.97);
-  }
+  #landing.hide { opacity: 0; pointer-events: none; transform: scale(0.97); }
 
-  /* animated background grid */
   #landing::before {
     content: '';
     position: absolute; inset: 0;
@@ -52,12 +49,8 @@
     animation: gridScroll 20s linear infinite;
     pointer-events: none;
   }
-  @keyframes gridScroll {
-    from { background-position: 0 0; }
-    to   { background-position: 48px 48px; }
-  }
+  @keyframes gridScroll { from { background-position: 0 0; } to { background-position: 48px 48px; } }
 
-  /* radial glow */
   #landing::after {
     content: '';
     position: absolute; inset: 0;
@@ -67,10 +60,8 @@
 
   .landing-card {
     position: relative; z-index: 1;
-    background: var(--surface);
-    border: 1px solid var(--border-accent);
-    border-radius: 20px;
-    padding: 40px 44px;
+    background: var(--surface); border: 1px solid var(--border-accent);
+    border-radius: 20px; padding: 40px 44px;
     width: 100%; max-width: 420px;
     box-shadow: 0 0 60px rgba(0,0,0,0.5), 0 0 120px rgba(74,222,128,0.05);
     animation: cardIn 0.6s cubic-bezier(0.22,1,0.36,1) both;
@@ -80,10 +71,7 @@
     to   { opacity: 1; transform: translateY(0) scale(1); }
   }
 
-  .landing-logo {
-    display: flex; align-items: center; gap: 10px;
-    margin-bottom: 28px;
-  }
+  .landing-logo { display: flex; align-items: center; gap: 10px; margin-bottom: 28px; }
   .landing-logo-mark {
     width: 36px; height: 36px; border-radius: 10px;
     background: conic-gradient(from 130deg, #4ade80, #818cf8, #fb923c, #4ade80);
@@ -93,41 +81,20 @@
   }
   .landing-logo-text { font-size: 18px; font-weight: 600; letter-spacing: -0.02em; }
 
-  .landing-title {
-    font-size: 22px; font-weight: 600; letter-spacing: -0.02em;
-    margin-bottom: 6px;
-  }
-  .landing-sub {
-    font-size: 13px; color: var(--muted); line-height: 1.55;
-    margin-bottom: 28px;
-  }
+  .landing-title { font-size: 22px; font-weight: 600; letter-spacing: -0.02em; margin-bottom: 6px; }
+  .landing-sub   { font-size: 13px; color: var(--muted); line-height: 1.55; margin-bottom: 28px; }
 
-  /* step indicator */
-  .steps-indicator {
-    display: flex; gap: 6px; margin-bottom: 28px;
-  }
-  .step-pip {
-    height: 3px; border-radius: 2px; flex: 1;
-    background: var(--surface2);
-    transition: background 0.3s;
-  }
+  .steps-indicator { display: flex; gap: 6px; margin-bottom: 28px; }
+  .step-pip { height: 3px; border-radius: 2px; flex: 1; background: var(--surface2); transition: background 0.3s; }
   .step-pip.active { background: var(--accent); }
   .step-pip.done   { background: rgba(74,222,128,0.4); }
 
-  /* step panels */
   .step-panel { display: none; }
   .step-panel.active { display: block; animation: fadeSlide 0.3s ease; }
-  @keyframes fadeSlide {
-    from { opacity: 0; transform: translateX(10px); }
-    to   { opacity: 1; transform: translateX(0); }
-  }
+  @keyframes fadeSlide { from { opacity: 0; transform: translateX(10px); } to { opacity: 1; transform: translateX(0); } }
 
-  .step-label-title {
-    font-size: 11px; letter-spacing: .08em; text-transform: uppercase;
-    color: var(--muted); margin-bottom: 14px;
-  }
+  .step-label-title { font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); margin-bottom: 14px; }
 
-  /* Role buttons */
   .role-grid { display: flex; flex-direction: column; gap: 10px; }
   .role-btn {
     display: flex; align-items: center; gap: 14px;
@@ -135,24 +102,14 @@
     border-radius: 12px; padding: 14px 16px;
     cursor: pointer; text-align: left;
     transition: all 0.2s ease; color: var(--text);
-    font-family: var(--sans);
-    position: relative; overflow: hidden;
+    font-family: var(--sans); position: relative; overflow: hidden;
   }
   .role-btn:hover { border-color: rgba(255,255,255,0.25); background: #1f2332; transform: translateY(-1px); }
-  .role-btn.selected {
-    border-color: var(--accent);
-    background: rgba(74,222,128,0.07);
-    box-shadow: 0 0 0 1px rgba(74,222,128,0.15);
-  }
+  .role-btn.selected { border-color: var(--accent); background: rgba(74,222,128,0.07); box-shadow: 0 0 0 1px rgba(74,222,128,0.15); }
   .role-btn.selected.seller  { border-color: var(--accent2); background: rgba(129,140,248,0.07); box-shadow: 0 0 0 1px rgba(129,140,248,0.15); }
-  .role-btn.selected.arbiter { border-color: var(--accent3); background: rgba(251,146,60,0.07);  box-shadow: 0 0 0 1px rgba(251,146,60,0.15); }
+  .role-btn.selected.arbiter { border-color: var(--accent3); background: rgba(251,146,60,0.07); box-shadow: 0 0 0 1px rgba(251,146,60,0.15); }
 
-  .role-icon {
-    width: 40px; height: 40px; border-radius: 10px;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 18px; flex-shrink: 0;
-    background: var(--surface);
-  }
+  .role-icon { width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; background: var(--surface); }
   .role-btn.selected.buyer   .role-icon { background: rgba(74,222,128,0.12); }
   .role-btn.selected.seller  .role-icon { background: rgba(129,140,248,0.12); }
   .role-btn.selected.arbiter .role-icon { background: rgba(251,146,60,0.12); }
@@ -164,22 +121,16 @@
     margin-left: auto; width: 18px; height: 18px; border-radius: 50%;
     border: 1.5px solid var(--border-accent);
     display: flex; align-items: center; justify-content: center;
-    font-size: 10px; color: transparent;
-    transition: all 0.2s;
-    flex-shrink: 0;
+    font-size: 10px; color: transparent; transition: all 0.2s; flex-shrink: 0;
   }
-  .role-btn.selected .role-check {
-    background: var(--accent); border-color: var(--accent); color: #0d1a10;
-  }
+  .role-btn.selected .role-check { background: var(--accent); border-color: var(--accent); color: #0d1a10; }
   .role-btn.selected.seller  .role-check { background: var(--accent2); border-color: var(--accent2); color: #fff; }
   .role-btn.selected.arbiter .role-check { background: var(--accent3); border-color: var(--accent3); color: #fff; }
 
-  /* Connect panel */
   .connect-info-box {
     background: var(--surface2); border: 1px solid var(--border);
     border-radius: 10px; padding: 14px 16px;
-    display: flex; align-items: center; gap: 12px;
-    margin-bottom: 16px;
+    display: flex; align-items: center; gap: 12px; margin-bottom: 16px;
   }
   .connect-role-chip {
     font-family: var(--mono); font-size: 12px; font-weight: 500;
@@ -188,10 +139,17 @@
   .connect-role-chip.buyer   { background: rgba(74,222,128,0.12); color: var(--accent); border: 1px solid rgba(74,222,128,0.2); }
   .connect-role-chip.seller  { background: rgba(129,140,248,0.12); color: var(--accent2); border: 1px solid rgba(129,140,248,0.2); }
   .connect-role-chip.arbiter { background: rgba(251,146,60,0.12); color: var(--accent3); border: 1px solid rgba(251,146,60,0.2); }
-
   .connect-info-text { font-size: 12px; color: var(--muted); line-height: 1.5; }
 
-  /* Primary CTA buttons */
+  /* Role hint for seller/arbiter when a room link is detected */
+  .room-detected-banner {
+    background: rgba(74,222,128,0.07); border: 1px solid rgba(74,222,128,0.2);
+    border-radius: 10px; padding: 10px 14px;
+    font-size: 12px; color: var(--accent); margin-bottom: 14px;
+    display: none;
+  }
+  .room-detected-banner.show { display: block; }
+
   .btn-primary {
     display: flex; align-items: center; justify-content: center; gap: 8px;
     width: 100%; padding: 12px 20px;
@@ -199,35 +157,132 @@
     font-family: var(--sans); font-size: 14px; font-weight: 500;
     transition: all 0.2s ease;
   }
-  .btn-next {
-    background: var(--accent); color: #0d1a10;
-    margin-top: 20px;
-  }
+  .btn-next     { background: var(--accent); color: #0d1a10; margin-top: 20px; }
   .btn-next:hover { opacity: 0.88; transform: translateY(-1px); box-shadow: 0 4px 20px rgba(74,222,128,0.25); }
   .btn-next:disabled { opacity: 0.4; cursor: not-allowed; transform: none; box-shadow: none; }
 
-  .btn-metamask {
-    background: linear-gradient(135deg, #ff7b00, #ff9d34);
-    color: #fff;
-  }
+  .btn-metamask { background: linear-gradient(135deg, #ff7b00, #ff9d34); color: #fff; }
   .btn-metamask:hover { opacity: 0.9; transform: translateY(-1px); box-shadow: 0 4px 20px rgba(255,123,0,0.3); }
   .btn-metamask:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
 
-  .btn-back {
-    background: transparent; border: 1px solid var(--border-accent);
-    color: var(--muted); margin-top: 10px;
-  }
+  .btn-back { background: transparent; border: 1px solid var(--border-accent); color: var(--muted); margin-top: 10px; }
   .btn-back:hover { color: var(--text); border-color: rgba(255,255,255,0.2); }
 
-  .connect-status {
-    font-size: 12px; text-align: center; color: var(--muted);
-    margin-top: 12px; min-height: 18px;
-  }
-  .connect-status.error { color: var(--danger); }
+  .connect-status { font-size: 12px; text-align: center; color: var(--muted); margin-top: 12px; min-height: 18px; }
+  .connect-status.error   { color: var(--danger); }
   .connect-status.success { color: var(--accent); }
 
   /* ═══════════════════════════════════════════════
-     MAIN APP  (existing shell, untouched layout)
+     LOBBY WAITING ROOM
+  ═══════════════════════════════════════════════ */
+  #lobby {
+    position: fixed; inset: 0; z-index: 90;
+    display: flex; align-items: center; justify-content: center;
+    background: var(--bg);
+    opacity: 0; pointer-events: none;
+    transition: opacity 0.4s ease;
+  }
+  #lobby.visible { opacity: 1; pointer-events: auto; }
+  #lobby::before {
+    content: '';
+    position: absolute; inset: 0;
+    background-image:
+      linear-gradient(rgba(129,140,248,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(129,140,248,0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    animation: gridScroll 25s linear infinite reverse;
+    pointer-events: none;
+  }
+
+  .lobby-card {
+    position: relative; z-index: 1;
+    background: var(--surface); border: 1px solid var(--border-accent);
+    border-radius: 20px; padding: 36px 40px;
+    width: 100%; max-width: 480px;
+    box-shadow: 0 0 80px rgba(0,0,0,0.5), 0 0 120px rgba(129,140,248,0.05);
+    animation: cardIn 0.5s cubic-bezier(0.22,1,0.36,1) both;
+  }
+
+  .lobby-title { font-size: 20px; font-weight: 600; margin-bottom: 4px; }
+  .lobby-sub   { font-size: 13px; color: var(--muted); margin-bottom: 24px; }
+
+  .lobby-room-id {
+    font-family: var(--mono); font-size: 24px; font-weight: 500;
+    color: var(--accent2); letter-spacing: 0.12em;
+    text-align: center; padding: 12px;
+    background: rgba(129,140,248,0.07); border: 1px solid rgba(129,140,248,0.2);
+    border-radius: 10px; margin-bottom: 20px;
+  }
+
+  /* Participant slots */
+  .slots { display: flex; flex-direction: column; gap: 8px; margin-bottom: 20px; }
+  .slot {
+    display: flex; align-items: center; gap: 12px;
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 10px; padding: 10px 14px;
+  }
+  .slot-role-icon { font-size: 18px; width: 32px; text-align: center; }
+  .slot-role-name { font-size: 13px; font-weight: 500; flex: 1; }
+  .slot-filled { font-family: var(--mono); font-size: 12px; color: var(--accent); }
+  .slot-empty  { font-family: var(--mono); font-size: 12px; color: var(--muted); font-style: italic; }
+
+  /* Pulse animation for waiting slots */
+  @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.45; } }
+  .slot-empty { animation: pulse 1.8s ease-in-out infinite; }
+
+  /* Share link */
+  .share-section { margin-bottom: 20px; }
+  .share-label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .07em; margin-bottom: 8px; }
+  .share-input-row { display: flex; gap: 8px; }
+  .share-input {
+    flex: 1; background: var(--surface2); border: 1px solid var(--border-accent);
+    border-radius: 8px; padding: 8px 12px;
+    font-family: var(--mono); font-size: 11px; color: var(--muted); outline: none;
+  }
+  .btn-copy {
+    background: var(--surface2); border: 1px solid var(--border-accent);
+    color: var(--text); border-radius: 8px; padding: 8px 14px;
+    font-family: var(--sans); font-size: 12px; cursor: pointer;
+    transition: all .15s; white-space: nowrap;
+  }
+  .btn-copy:hover { border-color: rgba(255,255,255,0.25); }
+
+  .lobby-status {
+    font-size: 13px; color: var(--muted); text-align: center;
+    margin-bottom: 16px; min-height: 20px;
+  }
+
+  .btn-deploy {
+    width: 100%; padding: 12px; border: none; border-radius: 10px;
+    background: var(--accent); color: #0d1a10;
+    font-family: var(--sans); font-size: 14px; font-weight: 500;
+    cursor: pointer; transition: all .2s;
+  }
+  .btn-deploy:hover:not(:disabled) { opacity: 0.88; transform: translateY(-1px); box-shadow: 0 4px 20px rgba(74,222,128,0.25); }
+  .btn-deploy:disabled { opacity: 0.35; cursor: not-allowed; }
+
+  .btn-lobby-disconnect {
+    width: 100%; padding: 9px; margin-top: 10px;
+    background: transparent; border: 1px solid var(--border-accent);
+    color: var(--muted); border-radius: 10px;
+    font-family: var(--sans); font-size: 13px; cursor: pointer;
+    transition: all .15s;
+  }
+  .btn-lobby-disconnect:hover { color: var(--danger); border-color: rgba(248,113,113,0.4); }
+
+  /* Your wallet chip inside lobby */
+  .your-wallet-row {
+    display: flex; align-items: center; gap: 8px;
+    font-size: 12px; color: var(--muted); margin-bottom: 20px;
+  }
+  .your-wallet-chip {
+    font-family: var(--mono); font-size: 11px;
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 6px; padding: 3px 8px; color: var(--text);
+  }
+
+  /* ═══════════════════════════════════════════════
+     MAIN APP
   ═══════════════════════════════════════════════ */
   #app {
     opacity: 0; pointer-events: none;
@@ -244,7 +299,6 @@
     margin: 0 auto;
   }
 
-  /* TOP BAR */
   .topbar {
     grid-column: 1 / -1;
     display: flex; align-items: center; justify-content: space-between;
@@ -272,90 +326,63 @@
   }
   .net-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); }
 
-  .btn-connect {
-    font-family: var(--sans); font-size: 13px; font-weight: 500;
-    background: var(--accent); color: #0d1a10;
-    border: none; border-radius: 8px;
-    padding: 7px 16px; cursor: pointer;
-    transition: opacity .15s;
-  }
-  .btn-connect:hover { opacity: .85; }
-
   .btn-disconnect {
     font-family: var(--sans); font-size: 12px; font-weight: 500;
     background: transparent; color: var(--muted);
     border: 1px solid var(--border-accent); border-radius: 8px;
-    padding: 6px 12px; cursor: pointer;
-    transition: all .15s;
+    padding: 6px 12px; cursor: pointer; transition: all .15s;
   }
   .btn-disconnect:hover { color: var(--danger); border-color: rgba(248,113,113,0.4); }
 
-  /* SIDEBAR */
   .sidebar {
     border-right: 1px solid var(--border); background: var(--surface);
     padding: 24px 16px; display: flex; flex-direction: column; gap: 6px;
   }
 
-  .sidebar-label {
-    font-size: 10px; letter-spacing: .08em; color: var(--muted);
-    text-transform: uppercase; padding: 0 8px; margin-bottom: 4px; margin-top: 12px;
-  }
+  .sidebar-label { font-size: 10px; letter-spacing: .08em; color: var(--muted); text-transform: uppercase; padding: 0 8px; margin-bottom: 4px; margin-top: 12px; }
   .sidebar-label:first-child { margin-top: 0; }
 
   .nav-item {
     display: flex; align-items: center; gap: 10px;
     padding: 8px 10px; border-radius: 8px;
-    font-size: 13px; font-weight: 400; color: var(--muted);
+    font-size: 13px; color: var(--muted);
     cursor: pointer; transition: all .12s; user-select: none;
   }
   .nav-item.active { background: var(--surface2); color: var(--text); }
   .nav-item:hover:not(.active) { background: rgba(255,255,255,0.04); color: var(--text); }
 
-  .nav-icon {
-    width: 28px; height: 28px; border-radius: 7px;
-    display: flex; align-items: center; justify-content: center; font-size: 14px;
-    background: var(--surface2);
-  }
+  .nav-icon { width: 28px; height: 28px; border-radius: 7px; display: flex; align-items: center; justify-content: center; font-size: 14px; background: var(--surface2); }
   .nav-item.active .nav-icon { background: rgba(74,222,128,0.12); }
 
-  .role-box {
-    margin-top: auto;
-    background: var(--surface2); border-radius: 10px;
-    padding: 12px 14px; border: 1px solid var(--border);
-  }
+  .role-box { margin-top: auto; background: var(--surface2); border-radius: 10px; padding: 12px 14px; border: 1px solid var(--border); }
   .role-box-label { font-size: 10px; color: var(--muted); letter-spacing: .06em; text-transform: uppercase; margin-bottom: 6px; }
   .role-badge {
     font-family: var(--mono); font-size: 12px; font-weight: 500;
     display: inline-flex; align-items: center; gap: 5px;
-    padding: 4px 10px; border-radius: 6px;
-    background: rgba(129,140,248,0.12); color: var(--accent2);
-    border: 1px solid rgba(129,140,248,0.2);
-    word-break: break-all;
+    padding: 4px 10px; border-radius: 6px; word-break: break-all;
   }
-  .role-badge.buyer   { background: rgba(74,222,128,0.12); color: var(--accent); border-color: rgba(74,222,128,0.2); }
-  .role-badge.seller  { background: rgba(129,140,248,0.12); color: var(--accent2); border-color: rgba(129,140,248,0.2); }
-  .role-badge.arbiter { background: rgba(251,146,60,0.12); color: var(--accent3); border-color: rgba(251,146,60,0.2); }
+  .role-badge.buyer   { background: rgba(74,222,128,0.12); color: var(--accent); border: 1px solid rgba(74,222,128,0.2); }
+  .role-badge.seller  { background: rgba(129,140,248,0.12); color: var(--accent2); border: 1px solid rgba(129,140,248,0.2); }
+  .role-badge.arbiter { background: rgba(251,146,60,0.12); color: var(--accent3); border: 1px solid rgba(251,146,60,0.2); }
 
-  /* MAIN */
+  /* Escrow address in topbar */
+  .escrow-address-pill {
+    font-family: var(--mono); font-size: 11px; color: var(--muted);
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 6px; padding: 3px 8px;
+  }
+
   .main { padding: 28px; overflow-y: auto; display: flex; flex-direction: column; gap: 20px; }
 
-  /* STAT ROW */
   .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
-  .stat-card {
-    background: var(--surface); border: 1px solid var(--border);
-    border-radius: 12px; padding: 16px 18px;
-  }
+  .stat-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 16px 18px; }
   .stat-label { font-size: 11px; color: var(--muted); letter-spacing: .04em; text-transform: uppercase; margin-bottom: 6px; }
   .stat-value { font-size: 22px; font-weight: 500; letter-spacing: -0.02em; }
-  .stat-value.green { color: var(--accent); }
+  .stat-value.green  { color: var(--accent); }
   .stat-value.purple { color: var(--accent2); }
   .stat-mono { font-family: var(--mono); font-size: 13px; }
 
-  /* STATE TRACK */
-  .state-track {
-    background: var(--surface); border: 1px solid var(--border);
-    border-radius: 12px; padding: 20px;
-  }
+  .state-track { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 20px; }
   .track-header { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; margin-bottom: 16px; }
   .track-steps { display: flex; align-items: center; }
   .step { display: flex; flex-direction: column; align-items: center; gap: 6px; flex: 1; }
@@ -363,30 +390,20 @@
     width: 32px; height: 32px; border-radius: 50%;
     border: 1.5px solid var(--border-accent); background: var(--surface2);
     display: flex; align-items: center; justify-content: center;
-    font-size: 12px; font-weight: 500; color: var(--muted);
-    transition: all .3s;
+    font-size: 12px; font-weight: 500; color: var(--muted); transition: all .3s;
   }
-  .step.done .step-dot { background: var(--accent); border-color: var(--accent); color: #0d1a10; }
+  .step.done   .step-dot { background: var(--accent); border-color: var(--accent); color: #0d1a10; }
   .step.active .step-dot { background: rgba(74,222,128,0.12); border-color: var(--accent); color: var(--accent); }
-  .step-label { font-size: 10px; color: var(--muted); text-align: center; white-space: nowrap; }
+  .step-label  { font-size: 10px; color: var(--muted); text-align: center; white-space: nowrap; }
   .step.active .step-label, .step.done .step-label { color: var(--text); }
   .step-line { flex: 1; height: 1px; background: var(--border-accent); margin-bottom: 22px; }
   .step-line.done { background: var(--accent); }
 
-  /* ACTION PANEL */
   .actions-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-  .action-card {
-    background: var(--surface); border: 1px solid var(--border);
-    border-radius: 12px; padding: 18px; display: flex; flex-direction: column; gap: 10px;
-  }
+  .action-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 18px; display: flex; flex-direction: column; gap: 10px; }
   .action-title { font-size: 13px; font-weight: 500; display: flex; align-items: center; gap: 8px; }
-  .action-desc { font-size: 12px; color: var(--muted); line-height: 1.5; }
-  .action-btn {
-    font-family: var(--sans); font-size: 13px; font-weight: 500;
-    padding: 9px 16px; border-radius: 8px; border: none;
-    cursor: pointer; width: 100%; text-align: center;
-    transition: all .15s; margin-top: auto;
-  }
+  .action-desc  { font-size: 12px; color: var(--muted); line-height: 1.5; }
+  .action-btn { font-family: var(--sans); font-size: 13px; font-weight: 500; padding: 9px 16px; border-radius: 8px; border: none; cursor: pointer; width: 100%; text-align: center; transition: all .15s; margin-top: auto; }
   .btn-green  { background: rgba(74,222,128,0.12); color: var(--accent); border: 1px solid rgba(74,222,128,0.25); }
   .btn-green:hover  { background: rgba(74,222,128,0.2); }
   .btn-purple { background: rgba(129,140,248,0.12); color: var(--accent2); border: 1px solid rgba(129,140,248,0.2); }
@@ -395,31 +412,18 @@
   .btn-orange:hover { background: rgba(251,146,60,0.2); }
   .action-btn:disabled { opacity: .35; cursor: not-allowed; }
 
-  /* TX LOG */
   .log-panel { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 18px; }
   .log-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
-  .log-title { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; }
-  .log-list { display: flex; flex-direction: column; gap: 6px; min-height: 40px; }
-  .log-entry {
-    display: flex; align-items: flex-start; gap: 10px;
-    padding: 8px 10px; border-radius: 7px; background: var(--surface2);
-    font-size: 12px; animation: fadeIn .3s ease;
-  }
-  .log-time { font-family: var(--mono); color: var(--muted); white-space: nowrap; font-size: 11px; }
-  .log-msg { color: var(--text); flex: 1; }
-  .log-msg a { color: var(--accent2); }
-  .log-empty { color: var(--muted); font-size: 12px; font-style: italic; }
+  .log-title  { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; }
+  .log-list   { display: flex; flex-direction: column; gap: 6px; min-height: 40px; }
+  .log-entry  { display: flex; align-items: flex-start; gap: 10px; padding: 8px 10px; border-radius: 7px; background: var(--surface2); font-size: 12px; animation: fadeIn .3s ease; }
+  .log-time   { font-family: var(--mono); color: var(--muted); white-space: nowrap; font-size: 11px; }
+  .log-msg    { color: var(--text); flex: 1; }
+  .log-msg a  { color: var(--accent2); }
+  .log-empty  { color: var(--muted); font-size: 12px; font-style: italic; }
 
-  /* NETWORK SELECT in sidebar */
-  .net-select-wrap {
-    display: flex; align-items: center; gap: 8px;
-    background: var(--surface2); border: 1px solid var(--border);
-    border-radius: 8px; padding: 8px 10px; font-size: 12px; margin-bottom: 4px;
-  }
-  .net-select-wrap select {
-    background: transparent; border: none; color: var(--text);
-    font-family: var(--mono); font-size: 11px; flex: 1; outline: none; cursor: pointer;
-  }
+  .net-select-wrap { display: flex; align-items: center; gap: 8px; background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 8px 10px; font-size: 12px; margin-bottom: 4px; }
+  .net-select-wrap select { background: transparent; border: none; color: var(--text); font-family: var(--mono); font-size: 11px; flex: 1; outline: none; cursor: pointer; }
   .net-select-wrap select option { background: #1a1e28; }
 
   @keyframes fadeIn { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: translateY(0); } }
@@ -433,13 +437,11 @@
 <div id="landing">
   <div class="landing-card">
 
-    <!-- Logo -->
     <div class="landing-logo">
       <div class="landing-logo-mark">E</div>
       <span class="landing-logo-text">LockChain</span>
     </div>
 
-    <!-- Step progress pips -->
     <div class="steps-indicator">
       <div class="step-pip active" id="pip0"></div>
       <div class="step-pip" id="pip1"></div>
@@ -450,6 +452,11 @@
       <div class="step-label-title">Step 1 of 2 — Select your role</div>
       <h1 class="landing-title">Who are you?</h1>
       <p class="landing-sub">Choose your role in this escrow agreement. This controls which actions you can take.</p>
+
+      <!-- Banner shown when a ?room= link is detected -->
+      <div class="room-detected-banner" id="roomDetectedBanner">
+        🔗 Room link detected — pick Seller or Arbiter to join.
+      </div>
 
       <div class="role-grid">
         <button class="role-btn buyer" id="roleBtn-buyer" onclick="selectRole('buyer')" aria-pressed="false">
@@ -501,11 +508,69 @@
       </button>
       <div class="connect-status" id="connectStatus"></div>
 
-      <button class="btn-primary btn-back" onclick="goBack()">
-        ← Back
-      </button>
+      <button class="btn-primary btn-back" onclick="goBack()">← Back</button>
     </div>
 
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     LOBBY — WAITING ROOM
+═══════════════════════════════════════════════ -->
+<div id="lobby">
+  <div class="lobby-card">
+
+    <div class="landing-logo" style="margin-bottom:16px">
+      <div class="landing-logo-mark">E</div>
+      <span class="landing-logo-text">LockChain</span>
+    </div>
+
+    <h2 class="lobby-title">Waiting for participants</h2>
+    <p class="lobby-sub">All three roles must join before the escrow can be deployed.</p>
+
+    <div class="your-wallet-row">
+      Your wallet: <span class="your-wallet-chip" id="lobbyYourWallet">—</span>
+    </div>
+
+    <!-- Room ID display -->
+    <div class="lobby-room-id" id="lobbyRoomId">—</div>
+
+    <!-- Share section (buyer only) -->
+    <div class="share-section" id="lobbyShareSection">
+      <div class="share-label">Share this link with Seller &amp; Arbiter</div>
+      <div class="share-input-row">
+        <input class="share-input" id="lobbyShareLink" type="text" readonly />
+        <button class="btn-copy" id="copyLinkBtn" onclick="copyShareLink()">Copy</button>
+      </div>
+    </div>
+
+    <!-- Participant slots -->
+    <div class="slots">
+      <div class="slot">
+        <div class="slot-role-icon">🛒</div>
+        <div class="slot-role-name">Buyer</div>
+        <div id="lobbySlot-buyer"><span class="slot-empty">Waiting…</span></div>
+      </div>
+      <div class="slot">
+        <div class="slot-role-icon">📦</div>
+        <div class="slot-role-name">Seller</div>
+        <div id="lobbySlot-seller"><span class="slot-empty">Waiting…</span></div>
+      </div>
+      <div class="slot">
+        <div class="slot-role-icon">⚖️</div>
+        <div class="slot-role-name">Arbiter</div>
+        <div id="lobbySlot-arbiter"><span class="slot-empty">Waiting…</span></div>
+      </div>
+    </div>
+
+    <div class="lobby-status" id="lobbyStatus">0/3 participants joined</div>
+
+    <!-- Only Buyer sees + can click Deploy -->
+    <button class="btn-deploy" id="lobbyDeployBtn" onclick="deployEscrow()" disabled>
+      🚀 Deploy Escrow Contract
+    </button>
+
+    <button class="btn-lobby-disconnect" onclick="disconnectWallet()">⏏ Leave &amp; Switch Role</button>
   </div>
 </div>
 
@@ -515,7 +580,6 @@
 <div id="app">
 <div class="shell">
 
-  <!-- TOP BAR -->
   <header class="topbar">
     <div class="logo">
       <div class="logo-mark">E</div>
@@ -526,23 +590,17 @@
         <div class="net-dot"></div>
         Sepolia Testnet
       </div>
+      <div class="escrow-address-pill" id="escrowAddressDisplay" title="Live escrow contract address"></div>
       <div id="walletDisplay" style="font-family:var(--mono);font-size:12px;color:var(--muted);"></div>
       <button class="btn-disconnect" id="disconnectBtn" onclick="disconnectWallet()">⏏ Switch Role</button>
     </div>
   </header>
 
-  <!-- SIDEBAR -->
   <aside class="sidebar">
     <div class="sidebar-label">Navigation</div>
-    <div class="nav-item active">
-      <div class="nav-icon">⬡</div> Escrow
-    </div>
-    <div class="nav-item">
-      <div class="nav-icon">⧖</div> History
-    </div>
-    <div class="nav-item">
-      <div class="nav-icon">◎</div> Contract
-    </div>
+    <div class="nav-item active"><div class="nav-icon">⬡</div> Escrow</div>
+    <div class="nav-item"><div class="nav-icon">⧖</div> History</div>
+    <div class="nav-item"><div class="nav-icon">◎</div> Contract</div>
 
     <div class="sidebar-label">Network</div>
     <div class="net-select-wrap">
@@ -559,10 +617,7 @@
     </div>
   </aside>
 
-  <!-- MAIN -->
   <main class="main">
-
-    <!-- STATS -->
     <div class="stats">
       <div class="stat-card">
         <div class="stat-label">Escrow Balance</div>
@@ -579,33 +634,19 @@
       </div>
     </div>
 
-    <!-- STATE TRACK -->
     <div class="state-track">
       <div class="track-header">Escrow lifecycle</div>
       <div class="track-steps">
-        <div class="step" id="s0">
-          <div class="step-dot">1</div>
-          <div class="step-label">Awaiting<br>Payment</div>
-        </div>
+        <div class="step" id="s0"><div class="step-dot">1</div><div class="step-label">Awaiting<br>Payment</div></div>
         <div class="step-line" id="sl0"></div>
-        <div class="step" id="s1">
-          <div class="step-dot">2</div>
-          <div class="step-label">Awaiting<br>Delivery</div>
-        </div>
+        <div class="step" id="s1"><div class="step-dot">2</div><div class="step-label">Awaiting<br>Delivery</div></div>
         <div class="step-line" id="sl1"></div>
-        <div class="step" id="s2">
-          <div class="step-dot">3</div>
-          <div class="step-label">Complete</div>
-        </div>
+        <div class="step" id="s2"><div class="step-dot">3</div><div class="step-label">Complete</div></div>
         <div class="step-line" id="sl2"></div>
-        <div class="step" id="s3">
-          <div class="step-dot">R</div>
-          <div class="step-label">Refunded</div>
-        </div>
+        <div class="step" id="s3"><div class="step-dot">R</div><div class="step-label">Refunded</div></div>
       </div>
     </div>
 
-    <!-- ACTIONS -->
     <div class="actions-grid">
       <div class="action-card" id="depositCard" style="display:none">
         <div class="action-title">⬇ Deposit ETH</div>
@@ -626,7 +667,6 @@
       </div>
     </div>
 
-    <!-- TX LOG -->
     <div class="log-panel">
       <div class="log-header">
         <div class="log-title">Transaction log</div>
@@ -636,7 +676,6 @@
         <div class="log-empty">No transactions yet — connect your wallet to begin.</div>
       </div>
     </div>
-
   </main>
 </div>
 </div>
@@ -644,6 +683,9 @@
 <!-- ═══════════════════════════════════════════════
      SCRIPTS
 ═══════════════════════════════════════════════ -->
+<!-- Firebase v9 compat (works with the firebase.database() API used in script.js) -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js"></script>
 <script src="script.js"></script>
 <script>
@@ -651,126 +693,46 @@
 
 let selectedRole = null;
 
+// On load: check if URL has a ?room= parameter and show a hint
+window.addEventListener("DOMContentLoaded", () => {
+  const roomId = new URLSearchParams(window.location.search).get("room");
+  if (roomId) {
+    document.getElementById("roomDetectedBanner").classList.add("show");
+  }
+});
+
 function selectRole(role) {
   selectedRole = role;
-  // Update button states
-  ['buyer','seller','arbiter'].forEach(r => {
-    const btn = document.getElementById('roleBtn-' + r);
-    btn.classList.toggle('selected', r === role);
-    btn.setAttribute('aria-pressed', r === role ? 'true' : 'false');
+  ["buyer","seller","arbiter"].forEach(r => {
+    const btn = document.getElementById("roleBtn-" + r);
+    btn.classList.toggle("selected", r === role);
+    btn.setAttribute("aria-pressed", r === role ? "true" : "false");
   });
-  document.getElementById('btnToConnect').disabled = false;
+  document.getElementById("btnToConnect").disabled = false;
 }
 
 function goToConnect() {
   if (!selectedRole) return;
-  // Update chip + text in step 2
-  const chip = document.getElementById('connectRoleChip');
-  chip.className = 'connect-role-chip ' + selectedRole;
+  const chip = document.getElementById("connectRoleChip");
+  chip.className = "connect-role-chip " + selectedRole;
   chip.textContent = selectedRole.charAt(0).toUpperCase() + selectedRole.slice(1);
-  document.getElementById('connectRoleName').textContent = chip.textContent;
-  // Switch panels
-  document.getElementById('stepRole').classList.remove('active');
-  document.getElementById('stepConnect').classList.add('active');
-  // Update pips
-  document.getElementById('pip0').classList.remove('active');
-  document.getElementById('pip0').classList.add('done');
-  document.getElementById('pip1').classList.add('active');
+  document.getElementById("connectRoleName").textContent = chip.textContent;
+
+  document.getElementById("stepRole").classList.remove("active");
+  document.getElementById("stepConnect").classList.add("active");
+  document.getElementById("pip0").classList.remove("active");
+  document.getElementById("pip0").classList.add("done");
+  document.getElementById("pip1").classList.add("active");
 }
 
 function goBack() {
-  document.getElementById('stepConnect').classList.remove('active');
-  document.getElementById('stepRole').classList.add('active');
-  document.getElementById('pip0').classList.add('active');
-  document.getElementById('pip0').classList.remove('done');
-  document.getElementById('pip1').classList.remove('active');
-  document.getElementById('connectStatus').textContent = '';
-  document.getElementById('connectStatus').className = 'connect-status';
-}
-
-function showApp(walletAddress) {
-  // Update topbar wallet display
-  const short = walletAddress.slice(0,6) + '…' + walletAddress.slice(-4);
-  document.getElementById('walletDisplay').textContent = short;
-
-  // Update role badge in sidebar
-  const badge = document.getElementById('role-badge');
-  const roleCap = selectedRole.charAt(0).toUpperCase() + selectedRole.slice(1);
-  badge.textContent = roleCap + ': ' + short;
-  badge.className = 'role-badge ' + selectedRole;
-
-  // Show/hide action cards based on role
-  document.getElementById('depositCard').style.display = selectedRole === 'buyer'   ? 'flex' : 'none';
-  document.getElementById('confirmCard').style.display = selectedRole === 'buyer'   ? 'flex' : 'none';
-  document.getElementById('refundCard').style.display  = selectedRole === 'arbiter' ? 'flex' : 'none';
-
-  // Transition: hide landing, show app
-  document.getElementById('landing').classList.add('hide');
-  document.getElementById('app').classList.add('visible');
-}
-
-function disconnectWallet() {
-  // Clear localStorage
-  localStorage.removeItem('escrow_role');
-  localStorage.removeItem('escrow_wallet');
-  selectedRole = null;
-  // Reset landing UI
-  ['buyer','seller','arbiter'].forEach(r => {
-    const btn = document.getElementById('roleBtn-' + r);
-    btn.classList.remove('selected');
-    btn.setAttribute('aria-pressed', 'false');
-  });
-  document.getElementById('btnToConnect').disabled = true;
-  document.getElementById('connectStatus').textContent = '';
-  document.getElementById('connectStatus').className = 'connect-status';
-  // Go back to step 1
-  document.getElementById('stepConnect').classList.remove('active');
-  document.getElementById('stepRole').classList.add('active');
-  document.getElementById('pip0').classList.add('active');
-  document.getElementById('pip0').classList.remove('done');
-  document.getElementById('pip1').classList.remove('active');
-  // Hide app, show landing
-  document.getElementById('app').classList.remove('visible');
-  document.getElementById('landing').classList.remove('hide');
-}
-
-/* ─── Auto-restore session from localStorage ─── */
-window.addEventListener('DOMContentLoaded', () => {
-  const savedRole   = localStorage.getItem('escrow_role');
-  const savedWallet = localStorage.getItem('escrow_wallet');
-  if (savedRole && savedWallet) {
-    selectedRole = savedRole;
-    // Re-init without showing landing
-    initAppFromSession(savedRole, savedWallet);
-  }
-});
-
-async function initAppFromSession(role, walletAddress) {
-  try {
-    if (!window.ethereum) return;
-    // Use eth_accounts (silent — NO MetaMask popup) to check existing permissions.
-    // This avoids the "wallet_requestPermissions already pending" error when
-    // the session restores at the same time the user tries to connect manually.
-    const accounts = await ethereum.request({ method: 'eth_accounts' });
-    if (!accounts || accounts.length === 0) {
-      // MetaMask has lost the connection (e.g. user locked it). Clear session.
-      localStorage.removeItem('escrow_role');
-      localStorage.removeItem('escrow_wallet');
-      return;
-    }
-    provider = new ethers.providers.Web3Provider(window.ethereum);
-    signer = provider.getSigner();
-    if (!await checkNetwork()) return;
-    contract = new ethers.Contract(contractAddress, abi, signer);
-    selectedRole = role;
-    showApp(walletAddress);
-    await loadContractData();
-    attachContractEvents();
-  } catch(e) {
-    // If restoring fails for any reason, show landing page cleanly
-    localStorage.removeItem('escrow_role');
-    localStorage.removeItem('escrow_wallet');
-  }
+  document.getElementById("stepConnect").classList.remove("active");
+  document.getElementById("stepRole").classList.add("active");
+  document.getElementById("pip0").classList.add("active");
+  document.getElementById("pip0").classList.remove("done");
+  document.getElementById("pip1").classList.remove("active");
+  document.getElementById("connectStatus").textContent = "";
+  document.getElementById("connectStatus").className = "connect-status";
 }
 </script>
 </body>
